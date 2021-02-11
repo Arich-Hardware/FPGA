@@ -76,16 +76,9 @@ begin  -- architecture arch
     wait for PERIOD*5;
 
     pulse <= '1';                       --make a pulse
-    wait for PERIOD*6;
+    wait for PERIOD*10;                 --too long
     pulse <= '0';
     wait for PERIOD*10;
-
-    pulse <= '1';                       --make a pulse
-    wait for PERIOD*6;
-    pulse <= '0';
-    wait for PERIOD*10;
-
-    
 
     wait;
 
