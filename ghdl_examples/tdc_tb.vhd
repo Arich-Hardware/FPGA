@@ -4,36 +4,38 @@ use ieee.numeric_std.all;
 use ieee.std_logic_textio.all;
 use std.textio.all;
 
+use work.tdc_pkg.all;
+
 entity tdc_tb is
 end entity tdc_tb;
 
 architecture arch of tdc_tb is
 
-  constant T_WIDTH : integer := 4;
-  constant W_WIDTH : integer := 3;
   constant PERIOD : time := 10 ns;
 
   signal clk, rst : std_logic;
   signal start, pulse : std_logic;
-  signal dv : std_logic;
 
-  signal tdc_time : std_logic_vector( T_WIDTH-1 downto 0);
-  signal tdc_width : std_logic_vector( W_WIDTH-1 downto 0);
+  signal tdc_out : t_tdc_out;
+
+  signal dv : std_logic;
+  signal tdc_time : std_logic_vector( TDC_T_WIDE-1 downto 0);
+  signal tdc_width : std_logic_vector( TDC_W_WIDE-1 downto 0);
 
 begin  -- architecture arch
 
   tdc_1: entity work.tdc
-    generic map (
-      T_WIDE => T_WIDTH,
-      W_WIDE => W_WIDTH)
     port map (
       clk   => clk,
       rst   => rst,
       start => start,
       pulse => pulse,
-      dv    => dv,
-      tyme  => tdc_time,
-      width => tdc_width);
+      tdc_out => tdc_out);
+
+  -- assign to signals to make visible to simulation
+  dv <= tdc_out.tdc_valid;
+  tdc_time <= tdc_out.tdc_time;
+  tdc_width <= tdc_out.tdc_width;
 
   clok: process is
   begin  -- process clk
