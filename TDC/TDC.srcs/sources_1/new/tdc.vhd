@@ -30,7 +30,7 @@ entity tdc is
      t_reset: in std_logic;
      pulse  : in std_logic;
      o_time : out std_logic_vector(11 downto 0);
-     o_width: out std_logic_vector(11 downto 0);
+     o_width: out std_logic_vector(7 downto 0);
      o_valid: out std_logic);
 end tdc;
 
@@ -42,6 +42,7 @@ architecture Behavioral of tdc is
 begin
 
     time_counter: process(clk, t_reset, g_reset, pulse)    
+    variable tmp_width: std_logic_vector(11 downto 0) := (others => '0');
     begin    
     if(rising_edge(clk)) then
 	if (t_reset='1') then
@@ -59,7 +60,8 @@ begin
 		  outflag <= '1';
 		  o_valid <= '0';
 	   elsif (pulse='0' and outflag='1') then
-		o_width <= std_logic_vector(present_time - start_time);
+		tmp_width := std_logic_vector(present_time - start_time);
+		o_width <= tmp_width(7 downto 0);
     	o_valid <= '1';
 	   	outflag <= '0';
 	   end if;	

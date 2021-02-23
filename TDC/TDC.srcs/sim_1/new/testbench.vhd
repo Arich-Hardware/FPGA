@@ -18,7 +18,7 @@ architecture bench of tdc_tb is
        t_reset: in std_logic;
        pulse  : in std_logic;
        o_time : out std_logic_vector(11 downto 0);
-       o_width: out std_logic_vector(11 downto 0);
+       o_width: out std_logic_vector(7 downto 0);
        o_valid: out std_logic);
   end component;
 
@@ -27,7 +27,7 @@ architecture bench of tdc_tb is
   signal t_reset: std_logic;
   signal pulse: std_logic;
   signal o_time: std_logic_vector(11 downto 0);
-  signal o_width: std_logic_vector(11 downto 0);
+  signal o_width: std_logic_vector(7 downto 0);
   signal o_valid: std_logic;
 
   constant clock_period: time := 4 ns;
