@@ -44,7 +44,8 @@ begin
     time_counter: process(clk, t_reset, g_reset, pulse)    
     variable tmp_width: std_logic_vector(11 downto 0) := (others => '0');
     begin    
-    if(rising_edge(clk)) then
+    --if(rising_edge(clk)) then
+    if(clk'event) then
 	if (t_reset='1') then
 	   present_time <= (others => '0');
     elsif (g_reset = '1') then
