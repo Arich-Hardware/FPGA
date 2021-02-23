@@ -46,28 +46,28 @@ begin
     begin    
     --if(rising_edge(clk)) then
     if(clk'event) then
-	if (t_reset='1') then
-	   present_time <= (others => '0');
+ if (t_reset='1') then
+    present_time <= (others => '0');
     elsif (g_reset = '1') then
        present_time <= (others => '0');
-	   o_time <= (others => '0');
+    o_time <= (others => '0');
        o_width <= (others => '0');
-	   o_valid <= '0';
-	else
-	    present_time <= present_time + 1;
+    o_valid <= '0';
+ else
+     present_time <= present_time + 1;
         if (pulse='1' and outflag='0') then
-		  o_time <= std_logic_vector(present_time);
-		  start_time <= present_time;
-		  outflag <= '1';
-		  o_valid <= '0';
-	   elsif (pulse='0' and outflag='1') then
-		tmp_width := std_logic_vector(present_time - start_time);
-		o_width <= tmp_width(7 downto 0);
-    	o_valid <= '1';
-	   	outflag <= '0';
-	   end if;	
-	end if;	
-	end if;
-	end process;
+    o_time <= std_logic_vector(present_time);
+    start_time <= present_time;
+    outflag <= '1';
+    o_valid <= '0';
+    elsif (pulse='0' and outflag='1') then
+  tmp_width := std_logic_vector(present_time - start_time);
+  o_width <= tmp_width(7 downto 0);
+     o_valid <= '1';
+     outflag <= '0';
+    end if; 
+ end if; 
+ end if;
+ end process;
 
 end Behavioral;
