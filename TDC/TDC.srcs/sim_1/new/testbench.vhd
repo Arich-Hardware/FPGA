@@ -41,14 +41,20 @@ begin
                       pulse   => pulse,
                       o_time  => o_time,
                       o_width => o_width,
-                      o_valid => o_valid );
+                      o_valid => o_valid );                   
 
   stimulus: process
   begin
   
     -- Put initialisation code here
+    g_reset <= '1';
     t_reset <= '0';
     pulse <= '0';
+    wait for 8 ns;
+    g_reset <= '0';
+    wait for 80 ns;
+    -- For some reason the multiphase clock is not working in the initial 80 ns
+        
     g_reset <= '1';
     wait for 4 ns;
     g_reset <= '0';

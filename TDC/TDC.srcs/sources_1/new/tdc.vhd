@@ -25,7 +25,7 @@ use ieee.numeric_std.all;
 
 entity tdc is
   Port (
-     clk    : in std_logic;
+     clk    : in std_logic;     
      g_reset: in std_logic;
      t_reset: in std_logic;
      pulse  : in std_logic;
@@ -39,13 +39,51 @@ architecture Behavioral of tdc is
     signal start_time: unsigned(11 downto 0) := (others => '0');
     signal outflag: std_logic := '0';
     
+    signal clk_out1: std_logic;
+    signal clk_out2: std_logic;
+    signal clk_out3: std_logic;
+    signal clk_out4: std_logic;
+    signal reset: std_logic := '0';
+    signal locked: std_logic;
+    
+    component clk_wiz_0
+port
+ (-- Clock in ports
+  -- Clock out ports
+  clk_out1          : out    std_logic;
+  clk_out2          : out    std_logic;
+  clk_out3          : out    std_logic;
+  clk_out4          : out    std_logic;
+  -- Status and control signals
+  reset             : in     std_logic;
+  locked            : out    std_logic;
+  clk           : in     std_logic
+ );
+end component;
+
 begin
 
-    time_counter: process(clk, t_reset, g_reset, pulse)    
+clock_phase : clk_wiz_0
+   port map ( 
+  -- Clock out ports  
+   clk_out1 => clk_out1,
+   clk_out2 => clk_out2,
+   clk_out3 => clk_out3,
+   clk_out4 => clk_out4,
+  -- Status and control signals                
+   reset => reset,
+   locked => locked,
+   -- Clock in ports
+   clk => clk
+ );
+ 
+    time_counter: process(clk_out1, clk_out2, clk_out3, clk_out4, t_reset, g_reset, pulse)    
     variable tmp_width: std_logic_vector(11 downto 0) := (others => '0');
     begin    
     --if(rising_edge(clk)) then
- if(clk'event) then
+    --if(rising_edge(clk_out1) or rising_edge(clk_out2) or rising_edge(clk_out3) or rising_edge(clk_out4)) then
+ if(clk_out1'event or clk_out2'event or clk_out3'event or clk_out4'event) then
+
     if (t_reset='1') then
        present_time <= (others => '0');
     elsif (g_reset = '1') then
