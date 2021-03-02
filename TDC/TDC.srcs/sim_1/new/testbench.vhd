@@ -13,7 +13,7 @@ architecture bench of tdc_tb is
 
   component tdc
     Port (
-       clk    : in std_logic;
+       clk    : in std_logic;     
        g_reset: in std_logic;
        t_reset: in std_logic;
        pulse  : in std_logic;
@@ -26,8 +26,8 @@ architecture bench of tdc_tb is
   signal g_reset: std_logic;
   signal t_reset: std_logic;
   signal pulse: std_logic;
-  signal o_time: std_logic_vector(11 downto 0);
-  signal o_width: std_logic_vector(7 downto 0);
+  signal o_time: std_logic_vector(11 downto 0); 
+  signal o_width: std_logic_vector(7 downto 0); 
   signal o_valid: std_logic;
 
   constant clock_period: time := 4 ns;
@@ -36,12 +36,12 @@ architecture bench of tdc_tb is
 begin
 
   uut: tdc port map ( clk     => clk,
-                      g_reset => g_reset,
-                      t_reset => t_reset,
-                      pulse   => pulse,
-                      o_time  => o_time,
-                      o_width => o_width,
-                      o_valid => o_valid );                   
+                         g_reset => g_reset,
+                         t_reset => t_reset,
+                         pulse   => pulse,
+                         o_time  => o_time,
+                         o_width => o_width,
+                         o_valid => o_valid );
 
   stimulus: process
   begin
@@ -50,50 +50,21 @@ begin
     g_reset <= '1';
     t_reset <= '0';
     pulse <= '0';
+    wait for 4 ns;
+    g_reset <= '0';
+    wait for 94 ns;
+    t_reset <='1';
+    wait for 4 ns;
+    t_reset <='0';
     wait for 8 ns;
-    g_reset <= '0';
-    wait for 80 ns;
-    -- For some reason the multiphase clock is not working in the initial 80 ns
-        
-    g_reset <= '1';
-    wait for 4 ns;
-    g_reset <= '0';
-    wait for 4 ns;
-    t_reset <= '1';
-    wait for 4 ns;
-    t_reset <= '0';
-    wait for 16 ns;
-    
     pulse <= '1';
+    wait for 30 ns;
+    pulse <= '0';
+    wait for 16 ns;    
+    pulse <= '1';
+    wait for 40 ns;
+    pulse <= '0';
     wait for 20 ns;
-    pulse <= '0';
-    wait for 12 ns;
-    
-    pulse <= '1';
-    wait for 8 ns;
-    pulse <= '0';
-    wait for 12 ns;
-    
-    t_reset <= '1';
-    wait for 4 ns;
-    t_reset <= '0';
-    wait for 7 ns;
-    
-    pulse <= '1';
-    wait for 11 ns;
-    pulse <= '0';
-    wait for 5 ns;
-    
-    g_reset <= '1';
-    wait for 4 ns;
-    g_reset <= '0';
-    wait for 3 ns;
-    
-    pulse <= '1';
-    wait for 9 ns;
-    pulse <= '0';
-    wait for 4 ns;
-    
 
     -- Put test bench stimulus code here
 
