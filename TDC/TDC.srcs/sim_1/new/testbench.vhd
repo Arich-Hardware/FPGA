@@ -34,7 +34,7 @@ architecture bench of tdc_tb is
 
   constant clock_period: time := 4 ns;
   signal stop_the_clock: boolean;
-
+  
 begin
 
   uut: tdc port map ( clk     => clk,
@@ -55,18 +55,30 @@ begin
     pulse <= '0';
     wait for 4 ns;
     g_reset <= '0';
-    wait for 94 ns;
+    wait for 4 ns;
     t_reset <='1';
     wait for 4 ns;
     t_reset <='0';
-    wait for 8 ns;
+    wait for 4 ns;
     pulse <= '1';
-    wait for 30 ns;
+    wait for 16 ns;
     pulse <= '0';
-    wait for 16 ns;    
+    wait for 25 ns;    
     pulse <= '1';
-    wait for 40 ns;
+    wait for 16 ns;
     pulse <= '0';
+    wait for 25 ns;    
+    pulse <= '1';
+    wait for 16 ns;
+    pulse <= '0';
+    wait for 25 ns;    
+    pulse <= '1';
+    wait for 16 ns;
+    pulse <= '0';
+    wait for 25 ns;    
+    pulse <= '1';
+    wait for 16 ns;
+    pulse <= '0';    
     wait for 20 ns;
 
     -- Put test bench stimulus code here
