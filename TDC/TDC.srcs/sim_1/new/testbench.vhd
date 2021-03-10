@@ -14,7 +14,6 @@ architecture bench of tdc_tb is
   component tdc
     Port (
        clk    : in std_logic_vector(3 downto 0);     
-       g_reset: in std_logic;
        t_reset: in std_logic;
        pulse  : in std_logic;
        o_time : out std_logic_vector(7 downto 0);
@@ -24,7 +23,6 @@ architecture bench of tdc_tb is
   end component;
 
   signal clk: std_logic_vector(3 downto 0);
-  signal g_reset: std_logic;
   signal t_reset: std_logic;
   signal pulse: std_logic;
   signal o_time: std_logic_vector(7 downto 0); 
@@ -38,7 +36,6 @@ architecture bench of tdc_tb is
 begin
 
   uut: tdc port map ( clk     => clk,
-                         g_reset => g_reset,
                          t_reset => t_reset,
                          pulse   => pulse,
                          o_time  => o_time,
@@ -50,11 +47,8 @@ begin
   begin
   
     -- Put initialisation code here
-    g_reset <= '1';
-    t_reset <= '0';
     pulse <= '0';
-    wait for 4 ns;
-    g_reset <= '0';
+    t_reset <= '0';
     wait for 4 ns;
     t_reset <='1';
     wait for 4 ns;
