@@ -2,11 +2,12 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity tdc is
+entity tdc is  
   Port (
      clk    : in std_logic_vector(3 downto 0);
-     t_reset: in std_logic;
      pulse  : in std_logic;
+     t_reset: in std_logic;
+     coarse_time : in std_logic_vector(7 downto 0);
      o_time : out std_logic_vector(7 downto 0);
      o_prec : out std_logic_vector(3 downto 0);
      o_width: out std_logic_vector(7 downto 0);
@@ -15,16 +16,15 @@ end tdc;
 
 architecture Behavioral of tdc is
 
-    signal present_time, start_time: unsigned(7 downto 0) := (others => '0');
+    signal start_time: unsigned(7 downto 0) := (others => '0');
     signal flags: std_logic_vector(3 downto 0) := (others => '0');
-    signal outflag: std_logic_vector(1 downto 0) := (others => '0');
     signal prec_raw, prec_re : std_logic_vector(3 downto 0) := (others => '0'); 
         
 begin
 
 g_multiclock: for i in 0 to 3 generate
 one_clock: process(clk(i))    
-    begin    
+begin    
     if(rising_edge(clk(i))) then     
        flags(i) <= pulse;        
     end if;
@@ -58,19 +58,14 @@ begin
 end process;
 
 time_counter: process(clk(0))  
-variable tmp_prec : std_logic_vector(3 downto 0) := (others => '0');
-    
+variable tmp_width: unsigned(7 downto 0) := (others => '0');
 begin    
 if(rising_edge(clk(0))) then
-    if (t_reset='1') then
-       present_time <= (others => '0');
-    else
-       present_time <= present_time + 1;
        case prec_re is
           when "0000" =>
              if(prec_raw/="0000") then
-                o_time <= std_logic_vector(present_time);
-                start_time <= present_time;
+                o_time <= coarse_time;
+                start_time <= unsigned(coarse_time);
                 case prec_raw is
                    when "1000" => o_prec<="0000";
                    when "1111" => o_prec<="0001";
@@ -82,13 +77,13 @@ if(rising_edge(clk(0))) then
              o_valid <= '0';
           when "1111" =>
              if(prec_raw/="1111") then
-                o_width <= std_logic_vector(present_time - start_time);
+                tmp_width := unsigned(coarse_time)-start_time; 
+                o_width <= std_logic_vector(tmp_width);
                 o_valid <= '1';
              end if;
           when others => 
              o_valid <= '0';
        end case;
-    end if; 
  end if;
  end process;
 

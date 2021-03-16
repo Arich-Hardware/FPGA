@@ -11,11 +11,12 @@ end;
 
 architecture bench of tdc_tb is
 
-  component tdc
+  component multi_tdc
     Port (
        clk    : in std_logic_vector(3 downto 0);     
        t_reset: in std_logic;
        pulse  : in std_logic;
+       --coarse_time : in std_logic_vector(7 downto 0);
        o_time : out std_logic_vector(7 downto 0);
        o_prec : out std_logic_vector(3 downto 0);
        o_width: out std_logic_vector(7 downto 0);
@@ -25,6 +26,7 @@ architecture bench of tdc_tb is
   signal clk: std_logic_vector(3 downto 0);
   signal t_reset: std_logic;
   signal pulse: std_logic;
+  --signal coarse_time: std_logic_vector(7 downto 0);   
   signal o_time: std_logic_vector(7 downto 0); 
   signal o_prec: std_logic_vector(3 downto 0);
   signal o_width: std_logic_vector(7 downto 0); 
@@ -35,9 +37,10 @@ architecture bench of tdc_tb is
   
 begin
 
-  uut: tdc port map ( clk     => clk,
+  uut: multi_tdc port map ( clk     => clk,
                          t_reset => t_reset,
                          pulse   => pulse,
+                         --coarse_time => coarse_time,
                          o_time  => o_time,
                          o_prec  => o_prec,
                          o_width => o_width,
@@ -81,45 +84,28 @@ begin
     wait;
   end process;
 
-  
-    clocking0: process
+    c_time: process
+    variable tmp_time : unsigned(7 downto 0) := (others => '0');
   begin
-  wait for 0 ns;
     while not stop_the_clock loop       
-      clk(0) <= '0', '1' after clock_period / 2;
-      wait for clock_period;
-    end loop;
-    wait;
-  end process;
-  
-    clocking1: process
-  begin
-  wait for 1 ns;
-    while not stop_the_clock loop       
-      clk(1) <= '0', '1' after clock_period / 2;
-      wait for clock_period;
-    end loop;
-    wait;
-  end process;
-  
-    clocking2: process
-  begin
-  wait for 2 ns;
-    while not stop_the_clock loop       
-      clk(2) <= '0', '1' after clock_period / 2;
+      tmp_time := tmp_time +1;
+      --coarse_time <= std_logic_vector(tmp_time);
       wait for clock_period;
     end loop;
     wait;
   end process;
 
-  clocking3: process
+g_multiphase: for i in 0 to 3 generate  
+    clocking: process
   begin
-  wait for 3 ns;
+  wait for clock_period/4*i;
     while not stop_the_clock loop       
-      clk(3) <= '0', '1' after clock_period / 2;
+      clk(i) <= '0', '1' after clock_period / 2;
       wait for clock_period;
     end loop;
     wait;
   end process;
+end generate g_multiphase;  
+  
 end;
   
