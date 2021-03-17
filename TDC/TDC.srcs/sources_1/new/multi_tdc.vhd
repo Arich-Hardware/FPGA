@@ -2,19 +2,19 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use ieee.numeric_std.all;
 
-entity multi_tdc is
-  generic (Ntdc: integer := 1);
+entity tdc_group is
+  generic (Ntdc: integer := 4);
   Port (
      clk    : in std_logic_vector(3 downto 0);
      t_reset: in std_logic;
-     pulse  : in std_logic;
-     o_time : out std_logic_vector(7 downto 0);
-     o_prec : out std_logic_vector(3 downto 0);
-     o_width: out std_logic_vector(7 downto 0);
-     o_valid: out std_logic);   
-end multi_tdc;
+     pulse  : in std_logic_vector(Ntdc - 1 downto 0);
+     o_time : out std_logic_vector(8*Ntdc - 1 downto 0);
+     o_prec : out std_logic_vector(4*Ntdc - 1 downto 0);
+     o_width: out std_logic_vector(8*Ntdc - 1 downto 0);
+     o_valid: out std_logic_vector(Ntdc - 1 downto 0));   
+end tdc_group;
 
-architecture Behavioral of multi_tdc is
+architecture Behavioral of tdc_group is
 component tdc
     Port (
        clk    : in std_logic_vector(3 downto 0);     
@@ -49,12 +49,12 @@ if(rising_edge(clk(0))) then
 g_multitdc: for i in 0 to Ntdc-1 generate
 tdc_test: tdc port map ( clk     => clk,
                          t_reset => t_reset,
-                         pulse   => pulse,
+                         pulse   => pulse(i),
                          coarse_time => coarse_time,
-                         o_time  => o_time,
-                         o_prec  => o_prec,
-                         o_width => o_width,
-                         o_valid => o_valid );
+                         o_time  => o_time(8*(i+1)-1 downto 8*i),
+                         o_prec  => o_prec(4*(i+1)-1 downto 4*i),
+                         o_width => o_width(8*(i+1)-1 downto 8*i),
+                         o_valid => o_valid(i) );
  end generate g_multitdc; 
  
 end Behavioral;

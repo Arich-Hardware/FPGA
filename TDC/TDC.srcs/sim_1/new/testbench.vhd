@@ -7,40 +7,38 @@ use IEEE.Std_logic_1164.all;
 use IEEE.Numeric_Std.all;
 
 entity tdc_tb is
+generic (Ntdc: integer := 4);
 end;
 
 architecture bench of tdc_tb is
 
-  component multi_tdc
+  component tdc_group
     Port (
        clk    : in std_logic_vector(3 downto 0);     
        t_reset: in std_logic;
-       pulse  : in std_logic;
-       --coarse_time : in std_logic_vector(7 downto 0);
-       o_time : out std_logic_vector(7 downto 0);
-       o_prec : out std_logic_vector(3 downto 0);
-       o_width: out std_logic_vector(7 downto 0);
-       o_valid: out std_logic);
+       pulse  : in std_logic_vector(Ntdc - 1 downto 0);
+       o_time : out std_logic_vector(8*Ntdc - 1 downto 0);
+       o_prec : out std_logic_vector(4*Ntdc - 1 downto 0);
+       o_width: out std_logic_vector(8*Ntdc - 1 downto 0);
+       o_valid: out std_logic_vector(Ntdc - 1 downto 0));
   end component;
 
   signal clk: std_logic_vector(3 downto 0);
   signal t_reset: std_logic;
-  signal pulse: std_logic;
-  --signal coarse_time: std_logic_vector(7 downto 0);   
-  signal o_time: std_logic_vector(7 downto 0); 
-  signal o_prec: std_logic_vector(3 downto 0);
-  signal o_width: std_logic_vector(7 downto 0); 
-  signal o_valid: std_logic;
+  signal pulse: std_logic_vector(Ntdc - 1 downto 0); 
+  signal o_time: std_logic_vector(8*Ntdc - 1 downto 0); 
+  signal o_prec: std_logic_vector(4*Ntdc - 1 downto 0);
+  signal o_width: std_logic_vector(8*Ntdc - 1 downto 0); 
+  signal o_valid: std_logic_vector(Ntdc - 1 downto 0);
 
   constant clock_period: time := 4 ns;
   signal stop_the_clock: boolean;
   
 begin
 
-  uut: multi_tdc port map ( clk     => clk,
+  uut: tdc_group port map ( clk     => clk,
                          t_reset => t_reset,
                          pulse   => pulse,
-                         --coarse_time => coarse_time,
                          o_time  => o_time,
                          o_prec  => o_prec,
                          o_width => o_width,
@@ -50,32 +48,32 @@ begin
   begin
   
     -- Put initialisation code here
-    pulse <= '0';
+    pulse <= (others => '0');
     t_reset <= '0';
     wait for 4 ns;
     t_reset <='1';
     wait for 4 ns;
     t_reset <='0';
     wait for 4 ns;
-    pulse <= '1';
+    pulse <= (others => '1');
     wait for 16 ns;
-    pulse <= '0';
+    pulse <= (others => '0');
     wait for 25 ns;    
-    pulse <= '1';
+    pulse <= (others => '1');
     wait for 16 ns;
-    pulse <= '0';
+    pulse <= (others => '0');
     wait for 25 ns;    
-    pulse <= '1';
+    pulse <= (others => '1');
     wait for 16 ns;
-    pulse <= '0';
+    pulse <= (others => '0');
     wait for 25 ns;    
-    pulse <= '1';
+    pulse <= (others => '1');
     wait for 16 ns;
-    pulse <= '0';
+    pulse <= (others => '0');
     wait for 25 ns;    
-    pulse <= '1';
+    pulse <= (others => '1');
     wait for 16 ns;
-    pulse <= '0';    
+    pulse <= (others => '0');    
     wait for 20 ns;
 
     -- Put test bench stimulus code here
