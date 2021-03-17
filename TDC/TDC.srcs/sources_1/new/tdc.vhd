@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.pre_define.all;
 
 entity tdc is  
   Port (
@@ -8,10 +9,7 @@ entity tdc is
      pulse  : in std_logic;
      t_reset: in std_logic;
      coarse_time : in std_logic_vector(7 downto 0);
-     o_time : out std_logic_vector(7 downto 0);
-     o_prec : out std_logic_vector(3 downto 0);
-     o_width: out std_logic_vector(7 downto 0);
-     o_valid: out std_logic);
+     output : out t_hit);
 end tdc;
 
 architecture Behavioral of tdc is
@@ -61,29 +59,36 @@ time_counter: process(clk(0))
 variable tmp_width: unsigned(7 downto 0) := (others => '0');
 begin    
 if(rising_edge(clk(0))) then
+   if(t_reset = '1') then
+      output.o_prec<=(others => '0');
+      output.o_time<=(others => '0');
+      output.o_width<=(others => '0');
+      output.o_valid<='0';
+   else
        case prec_re is
           when "0000" =>
              if(prec_raw/="0000") then
-                o_time <= coarse_time;
+                output.o_time <= coarse_time;
                 start_time <= unsigned(coarse_time);
                 case prec_raw is
-                   when "1000" => o_prec<="0000";
-                   when "1111" => o_prec<="0001";
-                   when "1110" => o_prec<="0010";
-                   when "1100" => o_prec<="0011";
-                   when others  => o_prec<="1111"; 
+                   when "1000" => output.o_prec<="0000";
+                   when "1111" => output.o_prec<="0001";
+                   when "1110" => output.o_prec<="0010";
+                   when "1100" => output.o_prec<="0011";
+                   when others  => output.o_prec<="1111"; 
                 end case;
              end if;
-             o_valid <= '0';
+             output.o_valid <= '0';
           when "1111" =>
              if(prec_raw/="1111") then
                 tmp_width := unsigned(coarse_time)-start_time; 
-                o_width <= std_logic_vector(tmp_width);
-                o_valid <= '1';
+                output.o_width <= std_logic_vector(tmp_width);
+                output.o_valid <= '1';
              end if;
           when others => 
-             o_valid <= '0';
+             output.o_valid <= '0';
        end case;
+    end if;
  end if;
  end process;
 
