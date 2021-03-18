@@ -13,5 +13,6 @@ TYPE t_hit IS RECORD
 END RECORD;
   
 type t_fifo is array (Ntdc - 1 downto 0) of t_hit;
+type din_array is array (Ntdc - 1 downto 0) of std_logic_vector(20 downto 0); 
    
 end package pre_define;

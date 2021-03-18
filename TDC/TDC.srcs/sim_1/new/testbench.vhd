@@ -16,15 +16,19 @@ architecture bench of tdc_tb is
   component tdc_group
     Port (
        clk    : in std_logic_vector(3 downto 0);     
-       t_reset: in std_logic;
+       reset: in std_logic;
+       trigger: in std_logic;
        pulse  : in std_logic_vector(Ntdc - 1 downto 0);
-       output : out t_fifo);
+       rd_en  : in std_logic_vector(Ntdc - 1 downto 0);
+       dout : OUT din_array;
+       full : OUT STD_LOGIC_vector(Ntdc - 1 downto 0);
+       empty : OUT STD_LOGIC_vector(Ntdc - 1 downto 0));
   end component;
 
   signal clk: std_logic_vector(3 downto 0);
-  signal t_reset: std_logic;
-  signal pulse: std_logic_vector(Ntdc - 1 downto 0); 
-  signal output: t_fifo;
+  signal reset, trigger: std_logic;
+  signal pulse, rd_en, full, empty: std_logic_vector(Ntdc - 1 downto 0); 
+  signal dout: din_array;
 
   constant clock_period: time := 4 ns;
   signal stop_the_clock: boolean;
@@ -32,20 +36,28 @@ architecture bench of tdc_tb is
 begin
 
   uut: tdc_group port map ( clk     => clk,
-                         t_reset => t_reset,
+                         reset => reset,
+                         trigger => trigger,                         
                          pulse   => pulse,
-                         output  => output);
+                         rd_en => rd_en,
+                         dout => dout,
+                         full => full,                         
+                         empty  => empty);
 
   stimulus: process
   begin
   
     -- Put initialisation code here
+    reset <= '1';
+    rd_en <= (others => '0');
     pulse <= (others => '0');
-    t_reset <= '0';
+    trigger <= '0';
     wait for 4 ns;
-    t_reset <='1';
+    reset <= '0';
     wait for 4 ns;
-    t_reset <='0';
+    trigger <='1';
+    wait for 4 ns;
+    trigger <='0';
     wait for 4 ns;
     pulse <= "0001";
     wait for 16 ns;
