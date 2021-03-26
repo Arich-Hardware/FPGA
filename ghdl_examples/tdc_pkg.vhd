@@ -3,18 +3,15 @@ use ieee.std_logic_1164.all;
 
 package tdc_pkg is
 
---  constant TDC_T_WIDE : integer := 12;
---  constant TDC_W_WIDE : integer := 8;
+  constant NUM_TDC_BUFFERS : integer := 4;
+  constant TDC_COARSE_WIDTH : integer := 6;
 
--- short values for simulation  
-  constant TDC_T_WIDE : integer := 4;
-  constant TDC_W_WIDE : integer := 3;
-
-  type t_tdc_out is record
-    tdc_time  : std_logic_vector(TDC_T_WIDE-1 downto 0);
-    tdc_width : std_logic_vector(TDC_W_WIDE-1 downto 0);
+  type tdc_buffer_t is record
+    tdc_time : std_logic_vector(TDC_COARSE_WIDTH-1 downto 0);
+    tdc_phase : std_logic_vector(1 downto 0);
     tdc_valid : std_logic;
-  end record t_tdc_out;
-  
+  end record tdc_buffer_t;
+
+  type tdc_buffer_group_t is array (natural range <>) of tdc_buffer_t;
 
 end package tdc_pkg;
