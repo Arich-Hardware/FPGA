@@ -7,11 +7,13 @@
 library IEEE;
 use IEEE.Std_logic_1164.all;
 use IEEE.Numeric_Std.all;
+use work.tdc_pkg.all;
 
-entity multi_tb is
+
+entity tdc_chan_tb is
 end;
 
-architecture bench of multi_tb is
+architecture bench of tdc_chan_tb is
 
   component tdc_chan is
     generic (
@@ -38,17 +40,18 @@ architecture bench of multi_tb is
 
   signal trigger : std_logic;
 
+  signal buffers : tdc_buffer_group_t;
+
 begin
 
   tdc_chan_1: entity work.tdc_chan
-    generic map (
-      NCHAN => NCHAN)
+
     port map (
       rst          => rst,
       clk          => clk,
       pulse        => pulse,
       trigger      => trigger,
-      buffer_group => buffer_group);
+      buffer_group => buffers);
 
 
   trigger <= '0';

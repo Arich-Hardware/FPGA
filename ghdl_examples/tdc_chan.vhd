@@ -41,12 +41,9 @@ architecture arch of tdc_chan is
       phase                         : out std_logic_vector(1 downto 0));
   end component decode;
 
-  signal buffers : tdc_buffer_group_t;
+  signal buffers : tdc_buffer_group_t := (others => zero_buffer);
 
-  signal clk    : std_logic_vector(3 downto 0);  -- 4 phase clock
   signal sample : std_logic_vector(6 downto 0);
-
-  signal pulse : std_logic;
 
   signal rise, fall, high, low, glitch : std_logic;
 
@@ -54,7 +51,7 @@ architecture arch of tdc_chan is
 
   -- count buffers in use
   --NOTE: change if #buffers changes!
-  signal next_buffer : unsigned(1 downto 0) := "00";
+  signal next_buffer : integer range 0 to NUM_TDC_BUFFERS-1 := 0;
 
 begin  -- architecture arch
 
@@ -76,22 +73,56 @@ begin  -- architecture arch
       glitch => glitch,
       phase  => phase);
 
+  -- update all active buffers
+--  upd :
+--  for i in 0 to NUM_TDC_BUFFERS-1 generate
+--
+--    process(clk(0)) is
+--    begin
+--      if(rising_edge(clk(0))) then
+--        if buffers(i).tdc_valid = '1' then
+--          if buffers(i).tdc_time = 1 then
+--            buffers(i).tdc_valid <= '0';
+--          end if;
+--          buffers(i).tdc_time <= buffers(i).tdc_time - 1;
+--        end if;
+--      end if;
+--
+--    end process;
+--
+--  end generate upd;
+
+
   process (clk(0), rst) is
   begin  -- process
     if rst = '0' then                   -- asynchronous reset (active low)
 
     elsif clk(0)'event and clk(0) = '1' then  -- rising clock edge
 
+      -- activate next buffer on rising edge of input
       if rise = '1' then
 
         buffers(next_buffer).tdc_phase <= phase;
-        buffers(next_buffer).tdc_value <= '1';
+        buffers(next_buffer).tdc_valid <= '1';
+        buffers(next_buffer).tdc_time <= to_unsigned(TRIGGER_WINDOW, TDC_COARSE_WIDTH );
 
-        next_buffer <= next_buffer + 1;
+        if next_buffer < NUM_TDC_BUFFERS-1 then
+          next_buffer <= next_buffer + 1;
+        else
+          next_buffer <= 0;
+        end if;
 
       end if;
 
-    end if;
+      for i in 0 to NUM_TDC_BUFFERS-1 loop
+
+        if buffers(i).tdc_time > 0 then
+          buffers(i).tdc_time <= buffers(i).tdc_time - 1;
+        end if;
+
+      end loop;  -- i
+
+  end if;
   end process;
 
 end architecture arch;
