@@ -26,14 +26,14 @@ architecture bench of tdc_chan_tb is
       buffer_group : out tdc_buffer_group_t);
   end component tdc_chan;
 
-  signal clk   : std_logic_vector(3 downto 0); -- 4 phase clock
+  signal clk : std_logic_vector(3 downto 0);  -- 4 phase clock
   signal rst : std_logic;
 
-  signal pulse : std_logic;
-  signal sample  : std_logic_vector(6 downto 0);
+  signal pulse  : std_logic;
+  signal sample : std_logic_vector(6 downto 0);
 
   signal rise, fall, high, low, glitch : std_logic;
-  signal phase : std_logic_vector(1 downto 0);
+  signal phase                         : std_logic_vector(1 downto 0);
 
   constant clock_period : time := 4 ns;
   signal stop_the_clock : boolean;
@@ -44,7 +44,7 @@ architecture bench of tdc_chan_tb is
 
 begin
 
-  tdc_chan_1: entity work.tdc_chan
+  tdc_chan_1 : entity work.tdc_chan
 
     port map (
       rst          => rst,
@@ -54,27 +54,81 @@ begin
       buffer_group => buffers);
 
 
-  trigger <= '0';
-
   stimulus : process
   begin
 
     -- Put initialisation code here
-    pulse <= '0';
+    rst     <= '1';
+    pulse   <= '0';
+--    trigger <= '0';
+    wait for 4 ns;
+    rst     <= '0';
     wait for 4 ns;
 
-    -- walk a pulse by 0.5ns ticks
-    for i in 0 to 10 loop
-      pulse <= '1';
-      wait for 20 ns;
-      pulse <= '0';
-      wait for 20 ns;
-      wait for 0.5 ns;
-    end loop;  -- i
+    pulse <= '1';
+    wait for 10 ns;
+    pulse <= '0';
+    wait for 21 ns;
 
-    wait for 20 ns;
-    stop_the_clock <= true;
+    pulse <= '1';
+    wait for 10 ns;
+    pulse <= '0';
+    wait for 21 ns;
+
+    pulse <= '1';
+    wait for 10 ns;
+    pulse <= '0';
+    wait for 21 ns;
+
+    pulse <= '1';
+    wait for 10 ns;
+    pulse <= '0';
+    wait for 21 ns;
+
+    pulse <= '1';
+    wait for 10 ns;
+    pulse <= '0';
+    wait for 21 ns;
+
+    pulse <= '1';
+    wait for 10 ns;
+    pulse <= '0';
+    wait for 21 ns;
+
+    pulse <= '1';
+    wait for 10 ns;
+    pulse <= '0';
+    wait for 21 ns;
+
+    pulse <= '1';
+    wait for 10 ns;
+    pulse <= '0';
+    wait for 21 ns;
+
+    pulse <= '1';
+    wait for 10 ns;
+    pulse <= '0';
+    wait for 21 ns;
+
+    pulse <= '1';
+    wait for 10 ns;
+    pulse <= '0';
+    wait for 21 ns;
+
+
     wait;
+
+  end process;
+
+  trig : process
+  begin
+    trigger <= '0';
+    while true loop
+      wait for 100 ns;
+      trigger <= '1';
+      wait for 10 ns;
+      trigger <= '0';
+    end loop;
   end process;
 
   g_multiphase : for i in 0 to 3 generate
