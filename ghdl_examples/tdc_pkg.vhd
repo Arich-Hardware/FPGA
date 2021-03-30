@@ -7,7 +7,7 @@ use ieee.numeric_std.all;
 
 package tdc_pkg is
 
-  constant NUM_TDC_BUFFERS : integer := 1;      -- number of buffers
+  constant NUM_TDC_BUFFERS : integer := 4;      -- number of buffers
   constant TDC_COARSE_WIDTH : integer := 6;     -- coarse time counter width
 
   constant TRIGGER_WINDOW : integer := 25;      -- trig window in clk0 cycles

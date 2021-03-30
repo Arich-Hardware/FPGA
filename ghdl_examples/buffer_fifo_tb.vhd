@@ -1,3 +1,7 @@
+--
+-- testbench for buffer_fifo
+--
+
 library IEEE;
 use IEEE.Std_logic_1164.all;
 use IEEE.Numeric_Std.all;
@@ -22,7 +26,8 @@ architecture bench of buffer_fifo_tb is
       empty : out std_logic);
   end component buffer_fifo;
 
-  constant clk_period : time := 4 ns;
+  constant clock_period : time := 4 ns;
+  signal stop_the_clock : boolean;
 
   signal din                   : tdc_buffer_group_t;
   signal clk, rst              : std_logic;
@@ -53,70 +58,70 @@ begin  -- architecture bench
     ren <= '0';
     wen <= '0';
 
-    wait for clk_period;
+    wait for clock_period;
     rst <= '0';
-    wait for clk_period;
+    wait for clock_period;
 
     -- write some words
     din <= (others => test1);
     wen <= '1';
-    wait for clk_period;
+    wait for clock_period;
     wen <= '0';
-    wait for clk_period;
+    wait for clock_period;
 
     din <= (others => test2);
     wen <= '1';
-    wait for clk_period;
+    wait for clock_period;
     wen <= '0';
-    wait for clk_period;
+    wait for clock_period;
 
     din <= (others => test3);
     wen <= '1';
-    wait for clk_period;
+    wait for clock_period;
     wen <= '0';
-    wait for clk_period;
+    wait for clock_period;
 
     din <= (others => test4);
     wen <= '1';
-    wait for clk_period;
+    wait for clock_period;
     wen <= '0';
-    wait for clk_period;
+    wait for clock_period;
 
     din <= (others => test1);
     wen <= '1';
-    wait for clk_period;
+    wait for clock_period;
     wen <= '0';
-    wait for clk_period;
+    wait for clock_period;
 
     -- read some words
     wen <= '1';
-    wait for clk_period;
+    wait for clock_period;
     wen <= '0';
-    wait for clk_period;
+    wait for clock_period;
     
     -- read some words
     ren <= '1';
-    wait for clk_period;
+    wait for clock_period;
     ren <= '0';
-    wait for clk_period;
+    wait for clock_period;
     
     -- read some words
     ren <= '1';
-    wait for clk_period;
+    wait for clock_period;
     ren <= '0';
-    wait for clk_period;
+    wait for clock_period;
     
     -- read some words
     ren <= '1';
-    wait for clk_period;
+    wait for clock_period;
     ren <= '0';
-    wait for clk_period;
+    wait for clock_period;
     
     -- read some words
     ren <= '1';
-    wait for clk_period;
+    wait for clock_period;
     ren <= '0';
-    wait for clk_period;
+    wait for clock_period;
     
 
     wait;
@@ -127,8 +132,8 @@ begin  -- architecture bench
   clocking : process
   begin
     while true loop
-      clk <= '0', '1' after clk_period / 2;
-      wait for clk_period;
+      clk <= '0', '1' after clock_period / 2;
+      wait for clock_period;
     end loop;
   end process;
 
