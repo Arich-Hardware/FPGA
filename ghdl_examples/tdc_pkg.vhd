@@ -16,6 +16,24 @@ package tdc_pkg is
   constant BUFFER_SIZE : integer := (TDC_COARSE_WIDTH + 2 + 1);
   constant BUFFER_GROUP_SIZE : integer := NUM_TDC_BUFFERS * BUFFER_SIZE;
 
+  -- new buffer with width etc
+  -- total size ~23 bits
+  type tdc_buff_t is record
+    -- counts down from ~100ns from leading edge
+    window_time : unsigned(TDC_COARSE_WIDTH-1 downto 0);
+    -- stores phase of leading edge
+    leading_edge_phase : std_logic_vector(1 downto 0);
+    -- stores coarse time and phase for trailing edge
+    trailing_edge_time : unsigned(TDC_COARSE_WIDTH-1 downto 0);
+    trailing_edge_phase : std_logic_vector(1 downto 0);
+    -- counts down from end of window to timeout
+    time_out : unsigned(TDC_COARSE_WIDTH-1 downto 0);
+    tdc_live : std_logic;               -- in window
+    tdc_busy : std_logic;               -- waiting for trailing edge
+    tdc_valid : std_logic               -- trigger seen in window
+  end record tdc_buff_t;
+  
+
   -- one TDC output buffer
   type tdc_buffer_t is record
     tdc_time : unsigned(TDC_COARSE_WIDTH-1 downto 0);
