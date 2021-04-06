@@ -90,10 +90,9 @@ begin  -- architecture arch
       if rise = '1' then
 
         buffers(next_buffer).hit.le_phase <= phase;
-        buffers(next_buffer).active       <= '1';
-        buffers(next_buffer).busy         <= '1';
+--        buffers(next_buffer).active       <= '1';
+--        buffers(next_buffer).busy         <= '1';
         buffers(next_buffer).valid        <= '0';
-        buffers(next_buffer).hit.le_time  <= to_unsigned(TRIGGER_WINDOW, TDC_COARSE_BITS);
         buffers(next_buffer).timeout      <= to_unsigned(TDC_TIMEOUT, TDC_TIMEOUT_BITS);
 
         current_buffer <= next_buffer;
@@ -108,26 +107,29 @@ begin  -- architecture arch
 
       -- falling edge, capture time and phase
       if fall = '1' then
-        buffers(current_buffer).hit.te_time <= buffers(current_buffer).hit.le_time;
-        buffers(current_buffer).hit.te_phase <= buffers(current_buffer).hit.le_phase;
+        buffers(current_buffer).hit.te_time  <= buffers(current_buffer).timeout;
+        buffers(current_buffer).hit.te_phase <= phase;
       end if;
-
 
       buffer_valid <= '0';
 
       -- update active buffers:  decrement counters,
       for i in 0 to NUM_TDC_BUFFERS-1 loop
 
-        buffers(i).readme <= '0';
-
-        -- decrement leading edge time, set active=0 at zero
-        if buffers(i).hit.le_time > 0 then
-          buffers(i).hit.le_time <= buffers(i).hit.le_time - 1;
+        -- try decoding active, busy asynchronously
+        if buffers(i).timeout /= 0 then
+          buffers(i).busy <= '1';
+        else
+          buffers(i).busy <= '0';
         end if;
 
-        if buffers(i).hit.le_time = 1 then
+        if buffers(i).timeout > TDC_TIMEOUT-TRIGGER_WINDOW then
+          buffers(i).active <= '1';
+        else
           buffers(i).active <= '0';
         end if;
+
+        buffers(i).readme <= '0';
 
         -- decrement timeout time, set busy=0 at zero and readout
         if buffers(i).timeout > 0 then
@@ -135,11 +137,9 @@ begin  -- architecture arch
         end if;
 
         if buffers(i).timeout = 1 then
-          buffers(i).busy <= '0';
           if buffers(i).valid = '1' then  --we have a valid hit
             buffers(i).readme     <= '1';
-            output.hit.te_time    <= buffers(i).hit.te_time;
-            output.hit.te_phase    <= buffers(i).hit.te_phase;
+            output.hit            <= buffers(i).hit;
             output.trigger_number <= (others => '0');
             output.glitch         <= '0';
             output.error          <= '0';
@@ -150,9 +150,8 @@ begin  -- architecture arch
         -- on trigger rising edge, set valid, copy le times
         if trigger = '1' and trig0 = '0' then
           if buffers(i).active = '1' then
-            buffers(i).valid    <= '1';
-            output.hit.le_time  <= buffers(i).hit.le_time;
-            output.hit.le_phase <= buffers(i).hit.le_phase;
+            buffers(i).valid       <= '1';
+            buffers(i).hit.le_time <= buffers(i).timeout;
           end if;
         end if;
 

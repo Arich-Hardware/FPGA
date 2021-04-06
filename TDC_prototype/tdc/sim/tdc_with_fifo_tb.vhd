@@ -29,13 +29,17 @@ architecture sim of tdc_with_fifo_tb is
   signal clk                 : std_logic_vector(3 downto 0);
   signal trigger, pulse      : std_logic;
   signal empty, full, rd_ena : std_logic;
-  signal data                : std_logic_vector(31 downto 0);
-  signal rst : std_logic;
+  signal fifo_out_data       : std_logic_vector(31 downto 0);
+  signal rst                 : std_logic;
 
   constant clock_period : time := 4 ns;
   signal stop_the_clock : boolean;
 
+  signal fifo_out_data_rt : tdc_output_rt;
+
 begin  -- architecture sim
+
+  fifo_out_data_rt <= structify( fifo_out_data, fifo_out_data_rt);
 
   tdc_with_fifo_1 : entity work.tdc_with_fifo
     port map (
@@ -45,7 +49,7 @@ begin  -- architecture sim
       pulse   => pulse,
       empty   => empty,
       full    => full,
-      rd_data => data,
+      rd_data => fifo_out_data,
       rd_ena  => rd_ena);
 
   stimulus : process
@@ -54,26 +58,43 @@ begin  -- architecture sim
     -- Put initialisation code here
     rst   <= '1';
     pulse <= '0';
+    rd_ena <= '0';
     wait for clock_period;
     rst   <= '0';
     wait for clock_period;
 
     -- now at 8ns
-    -- pulse within trigger
+    -- two pulses within trigger
     wait for 1.5 ns;
+    wait for clock_period*5;
+    pulse <= '1';
+    wait for clock_period*3;
+    pulse <= '0';
+
+    wait for 1.5 ns;
+    wait for clock_period*7;
+    pulse <= '1';
+    wait for clock_period*3;
+    pulse <= '0';
+
+    -- now at 17 clocks
+    -- pulse after trigger
     wait for clock_period*5;
     pulse <= '1';
     wait for clock_period*10;
     pulse <= '0';
 
+    wait for clock_period*30;
+    rd_ena <= '1';
+    wait for clock_period;
+    rd_ena <= '0';
 
-    -- now at 17 clocks
-    -- pulse after trigger
-    wait for clock_period*10;
-    pulse <= '1';
-    wait for clock_period*10;
-    pulse <= '0';
+    wait for clock_period*2;
+    rd_ena <= '1';
+    wait for clock_period;
+    rd_ena <= '0';
 
+    
 
     wait;
 
