@@ -1,0 +1,3 @@
+[submodule "yml2hdl"]
+	path = yml2hdl
+	url = https://gitlab.com/tcpaiva/yml2hdl.git
