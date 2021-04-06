@@ -30,9 +30,12 @@ ehthumbs.db
 Thumbs.db
 
 ## MISCELLANEA
-**/*.ghw
+**.ghw
 **.vcd
 **.cf
+**.svh
+
+**/tdc_types.vhd
 
 **.tmp
 !/.gitignore
