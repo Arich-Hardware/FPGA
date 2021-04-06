@@ -13,7 +13,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.tdc_pkg.all;
+use work.tdc_types.all;
 
 
 entity tdc_chan is
@@ -23,7 +23,7 @@ entity tdc_chan is
     pulse        : in  std_logic;                     -- signal input
     trigger      : in  std_logic;                     -- trigger (capture data)
     buffer_valid : out std_logic;                     -- valid output
-    buffer_group : out tdc_buffer_group_t             -- output buffers
+    output       : out tdc_output_rt                  -- TDC output
     );
 end entity tdc_chan;
 
@@ -44,15 +44,16 @@ architecture arch of tdc_chan is
       phase                         : out std_logic_vector(1 downto 0));
   end component decode;
 
-  signal buffers : tdc_buffer_group_t; -- := (others => zero_buffer);
+  signal buffers : tdc_buffer_group_rt;  -- := (others => zero_buffer);
 
-  signal sample : std_logic_vector(6 downto 0);
+  signal sample                        : std_logic_vector(6 downto 0);
   signal rise, fall, high, low, glitch : std_logic;
-  signal phase : std_logic_vector(1 downto 0);
+  signal phase                         : std_logic_vector(1 downto 0);
 
-  signal trig0 : std_logic;             -- previous trigger state for edge detect
+  signal trig0 : std_logic;  -- previous trigger state for edge detect
 
-  signal next_buffer : integer range 0 to NUM_TDC_BUFFERS-1; -- := 0;
+  signal next_buffer    : integer range 0 to NUM_TDC_BUFFERS-1;  -- := 0;
+  signal current_buffer : integer range 0 to NUM_TDC_BUFFERS-1;  -- := 0;
 
 begin  -- architecture arch
 
@@ -79,19 +80,23 @@ begin  -- architecture arch
     if rst = '1' then
 
       next_buffer <= 0;
-      buffers <= (others => zero_buffer);
-      buffer_group <= (others => zero_buffer);
+      buffers     <= nullify(buffers);
 
-    elsif rising_edge(clk(0)) then         -- rising clock edge
+    elsif rising_edge(clk(0)) then      -- rising clock edge
 
       trig0 <= trigger;                 -- previous trigger state
 
-      -- activate next buffer on rising edge of input
+      -- rising edge:  set timers, active=1; valid=0;
       if rise = '1' then
 
-        buffers(next_buffer).tdc_phase <= phase;
-        buffers(next_buffer).tdc_valid <= '1';
-        buffers(next_buffer).tdc_time  <= to_unsigned(TRIGGER_WINDOW, TDC_COARSE_WIDTH);
+        buffers(next_buffer).hit.le_phase <= phase;
+        buffers(next_buffer).active       <= '1';
+        buffers(next_buffer).busy         <= '1';
+        buffers(next_buffer).valid        <= '0';
+        buffers(next_buffer).hit.le_time  <= to_unsigned(TRIGGER_WINDOW, TDC_COARSE_BITS);
+        buffers(next_buffer).timeout      <= to_unsigned(TDC_TIMEOUT, TDC_TIMEOUT_BITS);
+
+        current_buffer <= next_buffer;
 
         if next_buffer < NUM_TDC_BUFFERS-1 then
           next_buffer <= next_buffer + 1;
@@ -101,27 +106,58 @@ begin  -- architecture arch
 
       end if;
 
-      -- update active buffers:  decrement counter,
-      -- set valid=0 when count reaches zero
+      -- falling edge, capture time and phase
+      if fall = '1' then
+        buffers(current_buffer).hit.te_time <= buffers(current_buffer).hit.le_time;
+        buffers(current_buffer).hit.te_phase <= buffers(current_buffer).hit.le_phase;
+      end if;
+
+
+      buffer_valid <= '0';
+
+      -- update active buffers:  decrement counters,
       for i in 0 to NUM_TDC_BUFFERS-1 loop
 
-        if buffers(i).tdc_time > 0 then
-          buffers(i).tdc_time <= buffers(i).tdc_time - 1;
+        buffers(i).readme <= '0';
+
+        -- decrement leading edge time, set active=0 at zero
+        if buffers(i).hit.le_time > 0 then
+          buffers(i).hit.le_time <= buffers(i).hit.le_time - 1;
         end if;
 
-        if buffers(i).tdc_time = 1 then
-          buffers(i).tdc_valid <= '0';
+        if buffers(i).hit.le_time = 1 then
+          buffers(i).active <= '0';
+        end if;
+
+        -- decrement timeout time, set busy=0 at zero and readout
+        if buffers(i).timeout > 0 then
+          buffers(i).timeout <= buffers(i).timeout - 1;
+        end if;
+
+        if buffers(i).timeout = 1 then
+          buffers(i).busy <= '0';
+          if buffers(i).valid = '1' then  --we have a valid hit
+            buffers(i).readme     <= '1';
+            output.hit.te_time    <= buffers(i).hit.te_time;
+            output.hit.te_phase    <= buffers(i).hit.te_phase;
+            output.trigger_number <= (others => '0');
+            output.glitch         <= '0';
+            output.error          <= '0';
+            buffer_valid          <= '1';
+          end if;
+        end if;
+
+        -- on trigger rising edge, set valid, copy le times
+        if trigger = '1' and trig0 = '0' then
+          if buffers(i).active = '1' then
+            buffers(i).valid    <= '1';
+            output.hit.le_time  <= buffers(i).hit.le_time;
+            output.hit.le_phase <= buffers(i).hit.le_phase;
+          end if;
         end if;
 
       end loop;  -- i
 
-      -- on trigger rising edge, capture outputs
-      if trigger = '1' and trig0 = '0' then
-        buffer_group <= buffers;
-        buffer_valid <= '1';            -- pulse buffer_valid
-      else
-        buffer_valid <= '0';
-      end if;
 
     end if;
   end process;

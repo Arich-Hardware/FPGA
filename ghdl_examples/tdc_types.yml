@@ -1,0 +1,51 @@
+# tdc_types.yml
+# This defines custom types used in the TDC project
+# these are converted to VHDL with supporting functions by Thiago's yml2hdl.py
+# (https://gitlab.com/tcpaiva/yml2hdl.git v0.2.1)
+
+# enable automatic generation of convert functions for basic types,
+# and include some standard IEEE libraries
+config:
+    basic_convert_functions : on
+    packages:
+      - IEEE:
+        - std_logic_1164
+        - numeric_std
+
+types:
+
+  - TDC_COARSE_BITS: [qualifier: constant, type: integer, value: 6] # coarse time width
+  - TDC_PHASE_BITS: [qualifier: constant, type: integer, value: 2]  # phase bits
+  - TDC_TRIG_BITS: [qualifier: constant, type: integer, value: 3]   # trigger bits in buffer
+  - NUM_TDC_BUFFERS: [qualifier: constant, type: integer, value: 2] # multi-hit buffers
+  - TRIGGER_WINDOW: [qualifier: constant, type: integer, value: 25] # trigger window in clocks
+
+  - TDC_TIMEOUT_BITS: [qualifier: constant, type: integer, value: 7] # timeout counter bits
+  - TDC_TIMEOUT: [qualifier: constant, type: integer, value: 35]    # timeout window in clocks
+
+# base type for one TDC hit
+  - tdc_hit_rt:
+      - le_time: [type: unsigned, length: TDC_COARSE_BITS]
+      - le_phase: [type: logic, length: TDC_PHASE_BITS]
+      - te_time: [type: unsigned, length: TDC_COARSE_BITS]
+      - te_phase: [type: logic, length: TDC_PHASE_BITS]
+  
+# type for one TDC buffer inside the TDC logic
+  - tdc_buffer_rt:
+      - timeout: [type: unsigned, length: TDC_TIMEOUT_BITS]
+      - hit: [type: tdc_hit_rt]
+      - valid: [type: logic]
+      - busy: [type: logic]
+      - active: [type: logic]
+      - readme: [type: logic]
+
+# group of buffers in multi-hit TDC
+  - tdc_buffer_group_rt: [array: NUM_TDC_BUFFERS, type: tdc_buffer_rt]
+
+# type for output of multi-hit TDC
+  - tdc_output_rt:
+      - hit: [type: tdc_hit_rt]
+      - trigger_number: [type: unsigned, length: TDC_TRIG_BITS]
+      - glitch: [type: logic]
+      - error: [type: logic]
+        

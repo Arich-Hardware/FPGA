@@ -7,7 +7,7 @@
 library IEEE;
 use IEEE.Std_logic_1164.all;
 use IEEE.Numeric_Std.all;
-use work.tdc_pkg.all;
+use work.tdc_types.all;
 
 
 entity tdc_chan_tb is
@@ -19,11 +19,11 @@ architecture bench of tdc_chan_tb is
     generic (
       NCHAN : integer);
     port (
-      rst          : in  std_logic;
-      clk          : in  std_logic_vector(3 downto 0);
-      pulse        : in  std_logic;
-      trigger      : in  std_logic;
-      buffer_group : out tdc_buffer_group_t);
+      rst     : in  std_logic;
+      clk     : in  std_logic_vector(3 downto 0);
+      pulse   : in  std_logic;
+      trigger : in  std_logic;
+      output  : out tdc_output_rt);
   end component tdc_chan;
 
   signal clk : std_logic_vector(3 downto 0);  -- 4 phase clock
@@ -32,102 +32,68 @@ architecture bench of tdc_chan_tb is
   signal pulse  : std_logic;
   signal sample : std_logic_vector(6 downto 0);
 
-  signal rise, fall, high, low, glitch : std_logic;
-  signal phase                         : std_logic_vector(1 downto 0);
+  signal phase : std_logic_vector(1 downto 0);
 
   constant clock_period : time := 4 ns;
   signal stop_the_clock : boolean;
 
   signal trigger : std_logic;
 
-  signal buffers : tdc_buffer_group_t;
+  signal output : tdc_output_rt;
 
 begin
 
   tdc_chan_1 : entity work.tdc_chan
 
     port map (
-      rst          => rst,
-      clk          => clk,
-      pulse        => pulse,
-      trigger      => trigger,
-      buffer_group => buffers);
+      rst     => rst,
+      clk     => clk,
+      pulse   => pulse,
+      trigger => trigger,
+      output  => output);
 
 
   stimulus : process
   begin
 
     -- Put initialisation code here
-    rst     <= '1';
-    pulse   <= '0';
---    trigger <= '0';
-    wait for 4 ns;
-    rst     <= '0';
-    wait for 4 ns;
-
-    pulse <= '1';
-    wait for 10 ns;
+    rst   <= '1';
     pulse <= '0';
-    wait for 21 ns;
+    wait for clock_period;
+    rst   <= '0';
+    wait for clock_period;
 
+    -- now at 8ns
+    -- pulse within trigger
+    wait for 1.5 ns;
+    wait for clock_period*5;
     pulse <= '1';
-    wait for 10 ns;
+    wait for clock_period*10;
     pulse <= '0';
-    wait for 21 ns;
 
-    pulse <= '1';
-    wait for 10 ns;
-    pulse <= '0';
-    wait for 21 ns;
 
+    -- now at 17 clocks
+    -- pulse after trigger
+    wait for clock_period*10;
     pulse <= '1';
-    wait for 10 ns;
+    wait for clock_period*10;
     pulse <= '0';
-    wait for 21 ns;
-
-    pulse <= '1';
-    wait for 10 ns;
-    pulse <= '0';
-    wait for 21 ns;
-
-    pulse <= '1';
-    wait for 10 ns;
-    pulse <= '0';
-    wait for 21 ns;
-
-    pulse <= '1';
-    wait for 10 ns;
-    pulse <= '0';
-    wait for 21 ns;
-
-    pulse <= '1';
-    wait for 10 ns;
-    pulse <= '0';
-    wait for 21 ns;
-
-    pulse <= '1';
-    wait for 10 ns;
-    pulse <= '0';
-    wait for 21 ns;
-
-    pulse <= '1';
-    wait for 10 ns;
-    pulse <= '0';
-    wait for 21 ns;
 
 
     wait;
 
   end process;
 
+  -- generate (delayed) triggers at 100ns, 210ns, 320ns etc
   trig : process
   begin
     trigger <= '0';
     while true loop
-      wait for 100 ns;
+      wait for clock_period*25;
       trigger <= '1';
-      wait for 10 ns;
+      wait for clock_period*2;
       trigger <= '0';
+      wait for clock_period*25;
     end loop;
   end process;
 

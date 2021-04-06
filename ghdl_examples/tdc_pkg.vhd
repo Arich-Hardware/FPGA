@@ -41,7 +41,6 @@ package tdc_pkg is
   type tdc_buffer_group_t is array (0 to NUM_TDC_BUFFERS-1) of tdc_buffer_t;
 
   -- conversion functions to/from SLV (I hate VHDL!)
-  function vectorify( x: tdc_buffer_t) return 
 
   function tbt2slv (tbt   : tdc_buffer_t) return std_logic_vector;
   function tbtg2slv (tbtg : tdc_buffer_group_t) return std_logic_vector;
@@ -97,27 +96,6 @@ use ieee.numeric_std.all;
 use work.tdc_pkg.all;
 
 package body tdc_pkg is
-
-  -- convert one TDC buffer type to SLV
-  function vectorify(x: tdc_buffer_rt) return tdc_buffer_rvt is
-    variable s : tdc_buffer_rvt;
-  begin
-    s := std_logic_vector(x.window) & x.leading_edge_phse &
-         std_logic_vector(x.trailing_edge_time) & x.trailing_edge_phase &
-         std_logic_vector(x.time_out) & x.live & x.busy & x.valid;
-    return s;
-  end function vectorify;
-
-  -- convert one TDC buffer type to record
-  function structify(x: tdc_buffer_rvt) return tdc_buffer_rt is
-    variable r : tdc_buffer_rt;
-  begin
-    r.window 
-  end function structify;
-  
-  function nullify(x: tdc_buffer_rt) return tdc_buffer_rt;
-
-
 
   function tbt2slv (tbt : tdc_buffer_t) return std_logic_vector is
     variable slv : std_logic_vector(TDC_COARSE_BITS+2+1 -1 downto 0);
