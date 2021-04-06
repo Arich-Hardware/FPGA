@@ -18,13 +18,13 @@
 ############# modify these to match project ################
 set BIN_FILE 1
 ### FPGA
-set FPGA <device_code>
+set FPGA "xc7a35tcpg236-1"
 set FAMILY <device_family>
 ### Vivado strategies and flows
-set SYNTH_STRATEGY "Flow_AreaOptimized_High"
-set SYNTH_FLOW "Vivado Synthesis 2018"
-set IMPL_STRATEGY "Performance_ExplorePostRoutePhysOpt"
-set IMPL_FLOW "Vivado Implementation 2018"
+set SYNTH_STRATEGY "Vivado Synthesis Defaults"
+set SYNTH_FLOW "Vivado Synthesis 2019"
+set IMPL_STRATEGY "Vivado Implementation Defaults"
+set IMPL_FLOW "Vivado Implementation 2019"
 ### Set Vivado Runs Properties ###
 #
 # ATTENTION: The \ character must be the last one of each line

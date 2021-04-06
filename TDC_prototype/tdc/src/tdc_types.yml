@@ -23,7 +23,7 @@ types:
   - TDC_TIMEOUT_BITS: [qualifier: constant, type: integer, value: 7] # timeout counter bits
   - TDC_TIMEOUT: [qualifier: constant, type: integer, value: 35]    # timeout window in clocks
 
-# base type for one TDC hit
+# base type for one TDC hit (size: 16)
   - tdc_hit_rt:
       - le_time: [type: unsigned, length: TDC_COARSE_BITS]
       - le_phase: [type: logic, length: TDC_PHASE_BITS]
@@ -42,7 +42,7 @@ types:
 # group of buffers in multi-hit TDC
   - tdc_buffer_group_rt: [array: NUM_TDC_BUFFERS, type: tdc_buffer_rt]
 
-# type for output of multi-hit TDC
+# type for output of multi-hit TDC (size: 21)
   - tdc_output_rt:
       - hit: [type: tdc_hit_rt]
       - trigger_number: [type: unsigned, length: TDC_TRIG_BITS]

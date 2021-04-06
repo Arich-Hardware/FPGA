@@ -1,0 +1,5 @@
+tdc/src/top_tdc.vhd
+tdc/src/decode.vhd
+tdc/src/multi_sample.vhd
+tdc/src/tdc_chan.vhd
+tdc/src/tdc_types.vhd
