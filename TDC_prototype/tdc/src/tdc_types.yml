@@ -32,14 +32,9 @@ types:
   
 # type for one TDC buffer inside the TDC logic
   - tdc_buffer_rt:
-      - timeout: [type: unsigned, length: TDC_TIMEOUT_BITS]
       - hit: [type: tdc_hit_rt]
-      - valid: [type: logic]
-      - busy: [type: logic]
-      - active: [type: logic]
       - readme: [type: logic]
 
-# group of buffers in multi-hit TDC
   - tdc_buffer_group_rt: [array: NUM_TDC_BUFFERS, type: tdc_buffer_rt]
 
 # type for output of multi-hit TDC (size: 21)
