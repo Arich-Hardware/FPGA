@@ -10,15 +10,15 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.tdc_types.all;
 
-
 entity tdc_chan is
   port (
-    rst          : in  std_logic;                     -- (not currently used)
-    clk          : in  std_logic_vector(3 downto 0);  -- 4 phase clock
-    pulse        : in  std_logic;                     -- signal input
-    trigger      : in  std_logic;                     -- trigger (capture data)
-    buffer_valid : out std_logic;                     -- valid output
-    output       : out tdc_output_rt                  -- TDC output
+    rst          : in  std_logic;       -- (not currently used)
+    clk          : in  std_logic_vector(3 downto 0);        -- 4 phase clock
+    pulse        : in  std_logic;       -- signal input
+    trigger      : in  std_logic;       -- delayed trigger (capture data)
+    trig_num     : in  unsigned(TDC_TRIG_BITS-1 downto 0);  -- trigger no.
+    buffer_valid : out std_logic;       -- valid output
+    output       : out tdc_output_rt    -- TDC output
     );
 end entity tdc_chan;
 
@@ -51,23 +51,34 @@ architecture arch of tdc_chan is
       hit      : out tdc_hit_rt);
   end component tdc_hit;
 
+  component tdc_hit_mux is
+    port (
+      rst     : in  std_logic;
+      clk     : in  std_logic;
+      rise    : in  std_logic;
+      fall    : in  std_logic;
+      phase   : in  std_logic_vector(TDC_PHASE_BITS-1 downto 0);
+      m_rise  : out std_logic_vector(NUM_TDC_BUFFERS-1 downto 0);
+      m_fall  : out std_logic_vector(NUM_TDC_BUFFERS-1 downto 0);
+      m_phase : out std_logic_vector(TDC_PHASE_BITS-1 downto 0));
+  end component tdc_hit_mux;
+
+  -- interconnects from decoder to hit mux
   signal sample                        : std_logic_vector(6 downto 0);
   signal rise, fall, high, low, glitch : std_logic;
   signal phase                         : std_logic_vector(TDC_PHASE_BITS-1 downto 0);
 
+  -- demultiplexed signals to individual hit processors
+  signal m_rise  : std_logic_vector(NUM_TDC_BUFFERS-1 downto 0);
+  signal m_fall  : std_logic_vector(NUM_TDC_BUFFERS-1 downto 0);
+  signal m_phase : std_logic_vector(TDC_PHASE_BITS-1 downto 0);
+
+  -- trigger signal group
   signal trig0    : std_logic;  -- previous trigger state for edge detect
   signal del_trig : std_logic;          -- delayed trigger
 
-  signal current_buffer : integer range 0 to NUM_TDC_BUFFERS-1;  -- := 0;
-
+  -- output buffer group
   signal buffers : tdc_buffer_group_rt;
-
-  -- multiplexers for input signals
-  signal m_rise, m_fall   : std_logic_vector(NUM_TDC_BUFFERS-1 downto 0) := (others => '0');
-  signal s_phase, x_phase : std_logic_vector(TDC_PHASE_BITS-1 downto 0);
-
-  signal x_rise, x_fall : std_logic;
-
 
 begin  -- architecture arch
 
@@ -88,6 +99,17 @@ begin  -- architecture arch
       glitch => glitch,
       phase  => phase);
 
+  tdc_hit_mux_1 : entity work.tdc_hit_mux
+    port map (
+      rst     => rst,
+      clk     => clk(0),
+      rise    => rise,
+      fall    => fall,
+      phase   => phase,
+      m_rise  => m_rise,
+      m_fall  => m_fall,
+      m_phase => m_phase);
+
   -- four buffers
   g_hits : for i in 0 to NUM_TDC_BUFFERS-1 generate
 
@@ -97,7 +119,7 @@ begin  -- architecture arch
         rst      => rst,
         rise     => m_rise(i),
         fall     => m_fall(i),
-        phase    => s_phase,
+        phase    => m_phase,
         del_trig => del_trig,
         readme   => buffers(i).readme,
         hit      => buffers(i).hit);
@@ -107,9 +129,6 @@ begin  -- architecture arch
   begin  -- process
     if rst = '1' then
 
-      current_buffer <= 0;
-      buffers        <= nullify(buffers);
-
     elsif rising_edge(clk(0)) then      -- rising clock edge
 
       trig0 <= trigger;                 -- previous trigger state
@@ -118,28 +137,11 @@ begin  -- architecture arch
 
       for i in 0 to NUM_TDC_BUFFERS-1 loop
         if buffers(i).readme = '1' then
-          output.hit   <= buffers(i).hit;
-          buffer_valid <= '1';
+          output.hit            <= buffers(i).hit;
+          output.trigger_number <= trig_num;
+          buffer_valid          <= '1';
         end if;
       end loop;  -- i
-
-      -- pass on the decoder signals, delayed by two clocks
-      x_rise  <= rise;
-      x_fall  <= fall;
-      x_phase <= phase;
-
-      m_rise(current_buffer) <= x_rise;
-      m_fall(current_buffer) <= x_fall;
-      s_phase                <= x_phase;
-
-      -- pulse rising edge
-      if rise = '1' then
-        if current_buffer < NUM_TDC_BUFFERS-1 then
-          current_buffer <= current_buffer + 1;
-        else
-          current_buffer <= 0;
-        end if;
-      end if;
 
       -- rising edge of trigger
       if trigger = '1' and trig0 = '0' then

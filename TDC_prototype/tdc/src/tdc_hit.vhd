@@ -2,12 +2,14 @@
 -- tdc_hit.vhd -- control/timing logic for one TDC hit
 --
 -- This module implements TDC triggering and recording for one hit.
--- On the SiPM pulse leading edge (rise=1) a count-down timer is started.
--- On the SiPM pulse trailing edge (fall=1) the time is captured
--- A trigger (delayed to end of 100ns window) schedules data to be read out.
+-- Inputs are (rise, fall, phase) from the 'decode' block
+--   rise   - starts a count-down timer of ~150ns
+--            capture leading edge phase
+--   fall   - capture count-down time to record falling-edge time
+-- del_trig - trigger delayed to match end of 100ns window
 --
 -- When the count-down expires (~150ns) the "readme" signal is pulsed
--- if a pulse fell within the trigger window.
+-- if a pulse fell within the (~100ns) trigger window.
 --
 -- N.B. all control signals (rise, fall, del_trig, readme) are one
 -- clock wide, update on clock rising edge.
@@ -54,12 +56,12 @@ architecture arch of tdc_hit is
 
 begin  -- architecture arch
 
-  hit    <= s_hit;                      -- wire output to internal signal
+  hit    <= s_hit;                      -- wire outputs to internal signals
   readme <= s_readme;
 
   process (clk, rst) is
   begin  -- process
-    if rst = '1' then                   -- asynchronous reset (active high)
+    if rst = '1' then                   -- reset mainly for simulation
 
       timer <= (others => '0');
       valid <= '0';
@@ -67,7 +69,7 @@ begin  -- architecture arch
 
     elsif rising_edge(clk) then         -- rising clock edge
 
-      -- rising edge, start timer, capture phase
+      -- leading edge, start timer, capture phase
       if rise = '1' then
         timer          <= to_unsigned(TDC_TIMEOUT, TDC_TIMEOUT_BITS);
         valid          <= '0';
@@ -81,7 +83,7 @@ begin  -- architecture arch
       end if;
 
       -- count timer down, decode busy
-      if timer > 0 then
+      if timer /= 0 then
         timer <= timer - 1;
         busy  <= '1';
       else

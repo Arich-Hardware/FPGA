@@ -19,11 +19,12 @@ architecture bench of tdc_chan_tb is
     generic (
       NCHAN : integer);
     port (
-      rst     : in  std_logic;
-      clk     : in  std_logic_vector(3 downto 0);
-      pulse   : in  std_logic;
-      trigger : in  std_logic;
-      output  : out tdc_output_rt);
+      rst      : in  std_logic;
+      clk      : in  std_logic_vector(3 downto 0);
+      pulse    : in  std_logic;
+      trigger  : in  std_logic;
+      trig_num : in  unsigned(TDC_TRIG_BITS-1 downto 0);  -- trigger no.
+      output   : out tdc_output_rt);
   end component tdc_chan;
 
   signal clk : std_logic_vector(3 downto 0);  -- 4 phase clock
@@ -37,7 +38,8 @@ architecture bench of tdc_chan_tb is
   constant clock_period : time := 4 ns;
   signal stop_the_clock : boolean;
 
-  signal trigger : std_logic;
+  signal trigger     : std_logic;
+  signal trig_number : unsigned(TDC_TRIG_BITS-1 downto 0) := (others => '0');
 
   signal output : tdc_output_rt;
 
@@ -46,11 +48,12 @@ begin
   tdc_chan_1 : entity work.tdc_chan
 
     port map (
-      rst     => rst,
-      clk     => clk,
-      pulse   => pulse,
-      trigger => trigger,
-      output  => output);
+      rst      => rst,
+      clk      => clk,
+      pulse    => pulse,
+      trigger  => trigger,
+      trig_num => trig_number,
+      output   => output);
 
 
   stimulus : process
@@ -59,9 +62,18 @@ begin
     -- Put initialisation code here
     rst   <= '1';
     pulse <= '0';
-    wait for clock_period;
+    wait for clock_period*4;
     rst   <= '0';
-    wait for clock_period;
+    wait for clock_period*4;
+
+    for i in 0 to 7 loop
+      -- make pulses every 50 ns or so
+      pulse <= '1';
+      wait for clock_period*(3+i);
+      pulse <= '0';
+      wait for clock_period*(10-i);
+
+    end loop;  -- i
 
     -- now at 8ns
     -- pulse within trigger
@@ -90,10 +102,11 @@ begin
     trigger <= '0';
     while true loop
       wait for clock_period*25;
-      trigger <= '1';
+      trigger     <= '1';
       wait for clock_period*2;
-      trigger <= '0';
+      trigger     <= '0';
       wait for clock_period*25;
+      trig_number <= trig_number + 1;
     end loop;
   end process;
 
