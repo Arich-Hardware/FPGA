@@ -139,6 +139,7 @@ begin  -- architecture arch
         if buffers(i).readme = '1' then
           output.hit            <= buffers(i).hit;
           output.trigger_number <= trig_num;
+          output.buffer_number <= to_unsigned( i, TDC_BUFFER_NUM_BITS);
           buffer_valid          <= '1';
         end if;
       end loop;  -- i
