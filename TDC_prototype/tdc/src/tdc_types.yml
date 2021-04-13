@@ -23,6 +23,9 @@ types:
   - TDC_TIMEOUT_BITS: [qualifier: constant, type: integer, value: 6] # timeout counter bits
   - TDC_TIMEOUT: [qualifier: constant, type: integer, value: 35]    # timeout window in clocks
 
+  # note:  this is log(2) of NUM_TDC_BUFFERS.  Don't know how to express this in YAML!
+  - TDC_BUFFER_NUM_BITS: [qualifier: constant, type: integer, value: 2] # multi-hit buffers
+
 # base type for one TDC hit (size: 16)
   - tdc_hit_rt:
       - le_time: [type: unsigned, length: TDC_COARSE_BITS]
@@ -41,6 +44,7 @@ types:
   - tdc_output_rt:
       - hit: [type: tdc_hit_rt]
       - trigger_number: [type: unsigned, length: TDC_TRIG_BITS]
+      - buffer_number: [type: unsigned, length: TDC_BUFFER_NUM_BITS]
       - glitch: [type: logic]
       - error: [type: logic]
         

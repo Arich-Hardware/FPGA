@@ -7,6 +7,7 @@ gtkwave::addSignalsFromList [list {top.tdc_chan_tb.output.hit.le_phase}]
 gtkwave::addSignalsFromList [list {top.tdc_chan_tb.output.hit.le_time}]
 gtkwave::addSignalsFromList [list {top.tdc_chan_tb.output.hit.te_phase}]
 gtkwave::addSignalsFromList [list {top.tdc_chan_tb.output.hit.te_time}]
+gtkwave::addSignalsFromList [list {top.tdc_chan_tb.output.buffer_number}]
 gtkwave::addSignalsFromList [list {top.tdc_chan_tb.tdc_chan_1.buffer_valid}]
 
 gtkwave::addSignalsFromList [list {top.tdc_chan_tb.tdc_chan_1.tdc_hit_mux_1.current_buffer}]
