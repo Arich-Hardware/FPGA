@@ -6,6 +6,9 @@ all: tdc_chan_tb.ghw
 clean:
 	rm -f *~ *.cf *.vcd *.ghw
 
+../TDC_prototype/tdc/src/tdc_types.vhd: ../TDC_prototype/tdc/src/tdc_types.yml
+	python3 ../yml2hdl/yml2hdl.py ../TDC_prototype/tdc/src/tdc_types.yml
+
 tdc_chan_tb.ghw: ../TDC_prototype/tdc/src/multi_sample.vhd ../TDC_prototype/tdc/src/decode.vhd tdc_chan_tb.vhd ../TDC_prototype/tdc/src/tdc_chan.vhd \
 	../TDC_prototype/tdc/src/tdc_types.vhd ../TDC_prototype/tdc/src/tdc_hit_mux.vhd
 	rm -f work-obj93.cf

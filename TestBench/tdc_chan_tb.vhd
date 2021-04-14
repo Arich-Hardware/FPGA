@@ -25,6 +25,7 @@ architecture bench of tdc_chan_tb is
 				  pulse    : in  std_logic;
 				  trigger  : in  std_logic;
 				  trig_num : in  unsigned(TDC_TRIG_BITS-1 downto 0);  -- trigger no.
+				  buffer_valid : out std_logic;       -- valid output
 				  output   : out tdc_output_rt);
 	end component tdc_chan;
 
@@ -42,6 +43,7 @@ architecture bench of tdc_chan_tb is
 
 	signal trigger     : std_logic;
 	signal trig_number : unsigned(TDC_TRIG_BITS-1 downto 0) := (others => '0');
+	signal buffer_valid   : std_logic;
 
 	signal output : tdc_output_rt;
 
@@ -57,6 +59,7 @@ begin
 					pulse    => pulse,
 					trigger  => trigger,
 					trig_num => trig_number,
+					buffer_valid => buffer_valid,
 					output   => output);
 
 	pulse_sim : process
@@ -86,19 +89,11 @@ begin
 				read(row, stime);
 				read(row, chanID);
 				read(row, width);
-				if(stime<ptime) then
-					--	report "The value of 'stime' is " & real'image(stime);
-					if(stime + width > ptime) then
-						wait for (stime + width - ptime) * 1 ns;
-						ptime := stime + width;
-					end if;
-				else
-					wait for (stime-ptime) * 1 ns;
-					pulse <= '1';
-					wait for width* 1 ns;
-					pulse <='0';
-					ptime := stime + width;
-				end if;
+				wait for (stime-ptime) * 1 ns;
+				pulse <= '1';
+				wait for width* 1 ns;
+				pulse <='0';
+				ptime := stime + width;
 			end if;
 		end loop;
 
@@ -125,18 +120,12 @@ begin
 			read(row, flag);
 			if(flag = "T") then				
 				read(row, stime);
-				if(stime<ptime) then
-					if(stime + clock_pi*2.0 > ptime) then
-						wait for (stime + clock_pi*2.0 - ptime) * 1 ns;
-						ptime := stime + clock_pi*2.0;
-					end if;
-				else
-					wait for (stime-ptime)* 1 ns;
-					trigger <= '1';
-					wait for clock_period*2;
-					trigger <= '0';
-					ptime := stime + clock_pi*2.0;
-				end if;
+				wait for (stime-ptime)* 1 ns;
+				trigger <= '1';
+				trig_number <= trig_number + 1;
+				wait for clock_period*2;
+				trigger <= '0';
+				ptime := stime + clock_pi*2.0;
 			end if;
 		end loop;
 
