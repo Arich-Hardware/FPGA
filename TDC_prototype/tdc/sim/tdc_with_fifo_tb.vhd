@@ -16,51 +16,52 @@ architecture sim of tdc_with_fifo_tb is
 
   component tdc_with_fifo is
     port (
-      clk     : in  std_logic_vector(3 downto 0);
-      rst     : in  std_logic;
-      trigger : in  std_logic;
-      pulse   : in  std_logic;
-      empty   : out std_logic;
-      full    : out std_logic;
-      rd_data : out std_logic_vector(31 downto 0);
-      rd_ena  : out std_logic);
+      clk      : in  std_logic_vector(3 downto 0);
+      rst      : in  std_logic;
+      trigger  : in  std_logic;
+      pulse    : in  std_logic;
+      trig_num : in  unsigned(TDC_TRIG_BITS-1 downto 0);
+      empty    : out std_logic;
+      full     : out std_logic;
+      rd_data  : out std_logic_vector(35 downto 0);
+      rd_ena   : in  std_logic);
   end component tdc_with_fifo;
 
   signal clk                 : std_logic_vector(3 downto 0);
   signal trigger, pulse      : std_logic;
   signal empty, full, rd_ena : std_logic;
-  signal fifo_out_data       : std_logic_vector(31 downto 0);
+  signal fifo_out_rec        : tdc_output;
+  signal fifo_out_data       : std_logic_vector(35 downto 0);
   signal rst                 : std_logic;
 
   constant clock_period : time := 4 ns;
   signal stop_the_clock : boolean;
 
-  signal fifo_out_data_rt : tdc_output_rt;
+  signal trig_num : unsigned(TDC_TRIG_BITS-1 downto 0);
 
 begin  -- architecture sim
 
-  fifo_out_data_rt <= structify( fifo_out_data, fifo_out_data_rt);
-
   tdc_with_fifo_1 : entity work.tdc_with_fifo
     port map (
-      clk     => clk,
-      rst     => rst,
-      trigger => trigger,
-      pulse   => pulse,
-      empty   => empty,
-      full    => full,
-      rd_data => fifo_out_data,
-      rd_ena  => rd_ena);
+      clk      => clk,
+      rst      => rst,
+      trigger  => trigger,
+      pulse    => pulse,
+      trig_num => trig_num,
+      empty    => empty,
+      full     => full,
+      rd_data  => fifo_out_data,
+      rd_ena   => rd_ena);
 
   stimulus : process
   begin
 
     -- Put initialisation code here
-    rst   <= '1';
-    pulse <= '0';
+    rst    <= '1';
+    pulse  <= '0';
     rd_ena <= '0';
     wait for clock_period;
-    rst   <= '0';
+    rst    <= '0';
     wait for clock_period;
 
     -- now at 8ns
@@ -94,7 +95,7 @@ begin  -- architecture sim
     wait for clock_period;
     rd_ena <= '0';
 
-    
+
 
     wait;
 

@@ -5,7 +5,7 @@
 # run perl script with modules from the yml2tb submodule
 PERLRUN = perl -I../../../yml2tb
 
-all: multi_tb.ghw tdc_chan_tb.ghw tdc_hit_tb.ghw tdc_hit_mux_tb.ghw
+all: multi_tb.ghw tdc_chan_tb.ghw tdc_hit_tb.ghw tdc_hit_mux_tb.ghw tdc_with_fifo_tb.ghw
 
 clean:
 	rm -f *~ *.cf *.vcd *.ghw *.db
