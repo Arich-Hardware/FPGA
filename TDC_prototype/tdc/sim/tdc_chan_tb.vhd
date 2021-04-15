@@ -7,11 +7,13 @@
 library IEEE;
 use IEEE.Std_logic_1164.all;
 use IEEE.Numeric_Std.all;
+use std.textio.all;
 use work.tdc_types.all;
-
+use work.my_textio.all;
+use work.tdc_types_textio.all;
 
 entity tdc_chan_tb is
-end;
+end entity tdc_chan_tb;
 
 architecture bench of tdc_chan_tb is
 
@@ -19,12 +21,13 @@ architecture bench of tdc_chan_tb is
     generic (
       NCHAN : integer);
     port (
-      rst      : in  std_logic;
-      clk      : in  std_logic_vector(3 downto 0);
-      pulse    : in  std_logic;
-      trigger  : in  std_logic;
-      trig_num : in  unsigned(TDC_TRIG_BITS-1 downto 0);  -- trigger no.
-      output   : out tdc_output);
+      rst          : in  std_logic;
+      clk          : in  std_logic_vector(3 downto 0);
+      pulse        : in  std_logic;
+      trigger      : in  std_logic;
+      buffer_valid : out std_logic;                           -- valid output
+      trig_num     : in  unsigned(TDC_TRIG_BITS-1 downto 0);  -- trigger no.
+      output       : out tdc_output);
   end component tdc_chan;
 
   signal clk : std_logic_vector(3 downto 0);  -- 4 phase clock
@@ -41,7 +44,8 @@ architecture bench of tdc_chan_tb is
   signal trigger     : std_logic;
   signal trig_number : unsigned(TDC_TRIG_BITS-1 downto 0) := (others => '0');
 
-  signal output : tdc_output;
+  signal output       : tdc_output;
+  signal buffer_valid : std_logic;
 
 begin
 
@@ -53,6 +57,7 @@ begin
       pulse    => pulse,
       trigger  => trigger,
       trig_num => trig_number,
+      buffer_valid => buffer_valid,
       output   => output);
 
 
@@ -67,7 +72,7 @@ begin
     wait for clock_period*4;
 
     for i in 0 to 7 loop
-      wait for 1 ns;                  --shift the phase
+      wait for 1 ns;                    --shift the phase
       -- make pulses every 50 ns or so
       pulse <= '1';
       wait for clock_period*(3+i);
@@ -96,6 +101,42 @@ begin
     wait;
 
   end process;
+
+
+
+
+  vec_writer : process is
+
+    variable v_LINE : line;              -- line buffer
+    variable v_SPC  : character := ' ';  -- for space parsing
+    variable buff   : line;              -- for debug output
+    variable temp   : integer;
+    file file_out   : text;              -- file handle
+    variable v_tyme : integer;
+
+  begin
+
+    file_open(file_out, "tdc_output.txt", write_mode);
+
+    while true loop
+
+      wait until buffer_valid = '1';
+
+      write(v_LINE, now / 1 ns);
+      write(v_LINE, v_SPC);
+      write(v_LINE, output);
+      writeline(file_out, v_LINE);
+      wait for clock_period;
+
+    end loop;
+
+    wait;
+
+  end process vec_writer;
+
+
+
+
 
   -- generate (delayed) triggers at 100ns, 210ns, 320ns etc
   trig : process

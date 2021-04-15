@@ -18,14 +18,16 @@ types:
   - TDC_COARSE_BITS: [qualifier: constant, type: integer, value: 6] # coarse time width
   - TDC_PHASE_BITS: [qualifier: constant, type: integer, value: 2]  # phase bits
   - TDC_TRIG_BITS: [qualifier: constant, type: integer, value: 3]   # trigger bits in buffer
-  - NUM_TDC_BUFFERS: [qualifier: constant, type: integer, value: 5] # multi-hit buffers
   - TRIGGER_WINDOW: [qualifier: constant, type: integer, value: 25] # trigger window in clocks
+
+  - NUM_TDC_BUFFERS: [qualifier: constant, type: integer, value: 4] # multi-hit buffers
 
   - TDC_TIMEOUT_BITS: [qualifier: constant, type: integer, value: 6] # timeout counter bits
   - TDC_TIMEOUT: [qualifier: constant, type: integer, value: 35]    # timeout window in clocks
 
-  # note:  this is log(2) of NUM_TDC_BUFFERS.
-  - TDC_BUFFER_NUM_BITS: [qualifier: constant, type: integer, value: integer(ceil(log2(real(NUM_TDC_BUFFERS)))) ] # multi-hit buffers
+  # calculate number of bits to hold the buffer number
+  # (this is possibly fragile code, dependent on specific yml2hdl version)
+  - TDC_BUFFER_NUM_BITS: [qualifier: constant, type: integer, value: integer(ceil(log2(real(NUM_TDC_BUFFERS)))) ]
 
 # base type for one TDC hit (size: 16)
   - tdc_hit_data:
