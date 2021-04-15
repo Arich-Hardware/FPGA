@@ -24,7 +24,7 @@ architecture bench of tdc_chan_tb is
       pulse    : in  std_logic;
       trigger  : in  std_logic;
       trig_num : in  unsigned(TDC_TRIG_BITS-1 downto 0);  -- trigger no.
-      output   : out tdc_output_rt);
+      output   : out tdc_output);
   end component tdc_chan;
 
   signal clk : std_logic_vector(3 downto 0);  -- 4 phase clock
@@ -41,7 +41,7 @@ architecture bench of tdc_chan_tb is
   signal trigger     : std_logic;
   signal trig_number : unsigned(TDC_TRIG_BITS-1 downto 0) := (others => '0');
 
-  signal output : tdc_output_rt;
+  signal output : tdc_output;
 
 begin
 
@@ -67,6 +67,7 @@ begin
     wait for clock_period*4;
 
     for i in 0 to 7 loop
+      wait for 1 ns;                  --shift the phase
       -- make pulses every 50 ns or so
       pulse <= '1';
       wait for clock_period*(3+i);

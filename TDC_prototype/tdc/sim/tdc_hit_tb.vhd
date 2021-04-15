@@ -23,7 +23,7 @@ architecture sim of tdc_hit_tb is
       phase    : in  std_logic_vector(TDC_PHASE_BITS-1 downto 0);  -- measured phase for rise/fall
       del_trig : in  std_logic;
       readme   : out std_logic;
-      hit      : out tdc_hit_rt);
+      hit      : out tdc_hit_data);
   end component tdc_hit;
 
   signal clk        : std_logic;
@@ -32,7 +32,7 @@ architecture sim of tdc_hit_tb is
   signal del_trig   : std_logic;
   signal readme     : std_logic;
 
-  signal hit : tdc_hit_rt;
+  signal hit : tdc_hit_data;
 
   signal phase : std_logic_vector(TDC_PHASE_BITS-1 downto 0);  -- measured phase for rise/fall
 
