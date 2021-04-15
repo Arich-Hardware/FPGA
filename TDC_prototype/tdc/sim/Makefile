@@ -45,7 +45,7 @@ tdc_with_fifo_tb.ghw: ../src/multi_sample.vhd ../src/decode.vhd tdc_with_fifo_tb
 	ghdl -e --ieee=synopsys tdc_with_fifo_tb
 	ghdl -r --ieee=synopsys tdc_with_fifo_tb --stop-time=750ns --wave=tdc_with_fifo_tb.ghw
 
-multi_tb.ghw: ../src/multi_sample.vhd ../src/multi_tb.vhd ../src/decode.vhd
+multi_tb.ghw: ../src/multi_sample.vhd ../src/multi_tb.vhd ../src/decode.vhd ../src/tdc_types.vhd
 	rm -f work-obj93.cf
 	ghdl -a --ieee=synopsys ../src/tdc_types.vhd
 	ghdl -a --ieee=synopsys ../src/decode.vhd
