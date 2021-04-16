@@ -21,7 +21,7 @@ entity tdc_with_fifo is
     trig_num : in  unsigned(TDC_TRIG_BITS-1 downto 0);
     empty    : out std_logic;                      -- FIFO empty
     full     : out std_logic;                      -- FIFO full
-    rd_data  : out std_logic_vector(35 downto 0);  -- output hits
+    rd_data  : out tdc_output;
     rd_ena   : in  std_logic);                     -- output strobe
 
 end entity tdc_with_fifo;
@@ -60,15 +60,21 @@ architecture arch of tdc_with_fifo is
   end component web_fifo;
 
   signal tdc      : tdc_output;
-  signal tdc_vec  : std_logic_vector(35 downto 0);
+  signal tdc_vec  : std_logic_vector(len(tdc)-1 downto 0);
   signal valid    : std_logic;
   signal rd_valid : std_logic;
 
   signal s_trig_num : unsigned(TDC_TRIG_BITS-1 downto 0);
 
+  signal rd_data_rec : tdc_output;
+  signal rd_data_vec : std_logic_vector( len(rd_data_rec)-1 downto 0);
+
 begin  -- architecture arch
 
   tdc_vec <= vectorify(tdc, tdc_vec);
+  rd_data_rec <= structify( rd_data_vec, rd_data_rec);
+
+  rd_data <= rd_data_rec;
 
   s_trig_num <= trig_num;
 
@@ -84,7 +90,7 @@ begin  -- architecture arch
 
   web_fifo_1 : entity work.web_fifo
     generic map (
-      RAM_WIDTH => 36,
+      RAM_WIDTH => len(tdc),
       RAM_DEPTH => 128)
     port map (
       clk        => clk(0),
@@ -93,7 +99,7 @@ begin  -- architecture arch
       wr_data    => tdc_vec,
       rd_en      => rd_ena,
       rd_valid   => rd_valid,
-      rd_data    => rd_data,
+      rd_data    => rd_data_vec,
       empty      => empty,
       empty_next => open,
       full       => full,

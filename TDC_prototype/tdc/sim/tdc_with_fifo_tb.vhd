@@ -23,16 +23,16 @@ architecture sim of tdc_with_fifo_tb is
       trig_num : in  unsigned(TDC_TRIG_BITS-1 downto 0);
       empty    : out std_logic;
       full     : out std_logic;
-      rd_data  : out std_logic_vector(35 downto 0);
+      rd_data  : out tdc_output;
       rd_ena   : in  std_logic);
   end component tdc_with_fifo;
 
   signal clk                 : std_logic_vector(3 downto 0);
+  signal rst                 : std_logic;
   signal trigger, pulse      : std_logic;
   signal empty, full, rd_ena : std_logic;
+
   signal fifo_out_rec        : tdc_output;
-  signal fifo_out_data       : std_logic_vector(35 downto 0);
-  signal rst                 : std_logic;
 
   constant clock_period : time := 4 ns;
   signal stop_the_clock : boolean;
@@ -50,7 +50,7 @@ begin  -- architecture sim
       trig_num => trig_num,
       empty    => empty,
       full     => full,
-      rd_data  => fifo_out_data,
+      rd_data  => fifo_out_rec,
       rd_ena   => rd_ena);
 
   stimulus : process
