@@ -18,7 +18,7 @@ entity tdc_chan is
     trigger      : in  std_logic;       -- delayed trigger (capture data)
     trig_num     : in  unsigned(TDC_TRIG_BITS-1 downto 0);  -- trigger no.
     buffer_valid : out std_logic;       -- valid output
-    output       : out tdc_output_rt    -- TDC output
+    output       : out tdc_output       -- TDC output
     );
 end entity tdc_chan;
 
@@ -48,7 +48,7 @@ architecture arch of tdc_chan is
       phase    : in  std_logic_vector(TDC_PHASE_BITS-1 downto 0);
       del_trig : in  std_logic;
       readme   : out std_logic;
-      hit      : out tdc_hit_rt);
+      hit      : out tdc_hit_data);
   end component tdc_hit;
 
   component tdc_hit_mux is
@@ -78,7 +78,7 @@ architecture arch of tdc_chan is
   signal del_trig : std_logic;          -- delayed trigger
 
   -- output buffer group
-  signal buffers : tdc_buffer_group_rt;
+  signal buffers : tdc_buffer_group;
 
 begin  -- architecture arch
 
@@ -139,7 +139,7 @@ begin  -- architecture arch
         if buffers(i).readme = '1' then
           output.hit            <= buffers(i).hit;
           output.trigger_number <= trig_num;
-          output.buffer_number <= to_unsigned( i, TDC_BUFFER_NUM_BITS);
+          output.buffer_number  <= to_unsigned(i, TDC_BUFFER_NUM_BITS);
           buffer_valid          <= '1';
         end if;
       end loop;  -- i

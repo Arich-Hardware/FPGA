@@ -4,3 +4,6 @@
 [submodule "TDC_prototype/Hog"]
 	path = TDC_prototype/Hog
 	url = https://gitlab.cern.ch/hog/Hog.git
+[submodule "yml2tb"]
+	path = yml2tb
+	url = https://gitlab.com/eshazen/yml2tb
