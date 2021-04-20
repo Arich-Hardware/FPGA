@@ -35,7 +35,7 @@ architecture arch of tdc_with_fifo is
       pulse        : in  std_logic;
       trigger      : in  std_logic;
       buffer_valid : out std_logic;
-      output       : out tdc_output_rt);
+      output       : out tdc_output);
   end component tdc_chan;
 
   component web_fifo is
@@ -57,14 +57,14 @@ architecture arch of tdc_with_fifo is
       fill_count : out integer range RAM_DEPTH - 1 downto 0);
   end component web_fifo;
 
-  signal tdc_rt  : tdc_output_rt;
+  signal tdc  : tdc_output;
   signal tdc_vec : std_logic_vector(31 downto 0);
   signal valid   : std_logic;
   signal rd_valid : std_logic;
 
 begin  -- architecture arch
 
-  tdc_vec <= vectorify(tdc_rt, tdc_vec);
+  tdc_vec <= vectorify(tdc, tdc_vec);
 
   tdc_chan_1 : entity work.tdc_chan
     port map (
@@ -73,7 +73,7 @@ begin  -- architecture arch
       pulse        => pulse,
       trigger      => trigger,
       buffer_valid => valid,
-      output       => tdc_rt);
+      output       => tdc);
 
   web_fifo_1 : entity work.web_fifo
     generic map (
