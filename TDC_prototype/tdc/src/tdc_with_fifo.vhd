@@ -59,15 +59,9 @@ architecture arch of tdc_with_fifo is
       fill_count : out integer range RAM_DEPTH - 1 downto 0);
   end component web_fifo;
 
-<<<<<<< HEAD
-  signal tdc  : tdc_output;
-  signal tdc_vec : std_logic_vector(31 downto 0);
-  signal valid   : std_logic;
-=======
   signal tdc      : tdc_output;
   signal tdc_vec  : std_logic_vector(len(tdc)-1 downto 0);
   signal valid    : std_logic;
->>>>>>> 3e2962103efa6f641ccaa9234b9bb024534f1cc5
   signal rd_valid : std_logic;
 
   signal s_trig_num : unsigned(TDC_TRIG_BITS-1 downto 0);
@@ -78,14 +72,11 @@ architecture arch of tdc_with_fifo is
 begin  -- architecture arch
 
   tdc_vec <= vectorify(tdc, tdc_vec);
-<<<<<<< HEAD
-=======
   rd_data_rec <= structify( rd_data_vec, rd_data_rec);
 
   rd_data <= rd_data_rec;
 
   s_trig_num <= trig_num;
->>>>>>> 3e2962103efa6f641ccaa9234b9bb024534f1cc5
 
   tdc_chan_1 : entity work.tdc_chan
     port map (

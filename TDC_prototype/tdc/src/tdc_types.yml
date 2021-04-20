@@ -15,6 +15,9 @@ config:
 
 types:
 
+  - NUM_TDC_CHANNELS: [qualifier: constant, type: integer, value: 4] # number of channels
+  - TDC_CHAN_NUM_BITS: [qualifier: constant, type: integer, value: integer(ceil(log2(real(NUM_TDC_CHANNELS)))) ]
+
   - TDC_COARSE_BITS: [qualifier: constant, type: integer, value: 6] # coarse time width
   - TDC_PHASE_BITS: [qualifier: constant, type: integer, value: 2]  # phase bits
 
@@ -30,6 +33,7 @@ types:
   # calculate number of bits to hold the buffer number
   # (this is possibly fragile code, dependent on specific yml2hdl version)
   - TDC_BUFFER_NUM_BITS: [qualifier: constant, type: integer, value: integer(ceil(log2(real(NUM_TDC_BUFFERS)))) ]
+
 
 # base type for one TDC hit (size: 16)
   - tdc_hit_data:
@@ -53,3 +57,5 @@ types:
       - glitch: [type: logic]
       - error: [type: logic]
         
+# type for array of TDC outputs
+  - tdc_output_array: [array: NUM_TDC_CHANNELS, type: tdc_output]
