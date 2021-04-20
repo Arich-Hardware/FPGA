@@ -69,7 +69,7 @@ begin
 
   pulse_sim : process
 
-    file file_handler            : text open read_mode is "test_data_1ms.txt";
+    file file_handler            : text open read_mode is "random_data/hit_0.dat";
     variable row                 : line;
     variable bufr                : line;
     variable flag                : string(1 to 1);
@@ -97,24 +97,7 @@ begin
         read(row, stime);
         read(row, chanID);
         read(row, width);
-
---         -- turning on pulse, report output
---         write(bufr, string'("Now: "));
---         write(bufr, now);
---         write(bufr, string'(" Stime: "));
---         write(bufr, stime);
---         write(bufr, string'(" Ptime: "));
---         write(bufr, ptime);
---         write(bufr, string'(" wait for: "));
---         write(bufr, stime-ptime);
---         writeline(output, bufr);
-
         wait for (stime-ptime) * 1 ns;
-
---         write(bufr, string'("after wait now: "));
---         write(bufr, now);
---         writeline(output, bufr);
-
         pulse <= '1';
         wait for width* 1 ns;
         pulse <= '0';
@@ -128,7 +111,7 @@ begin
 
   trig_sim : process
 
-    file file_handler     : text open read_mode is "test_data_1ms.txt";
+    file file_handler     : text open read_mode is "random_data/trigger.dat";
     variable row          : line;
     variable flag         : string(1 to 1);
     variable stime, ptime : real;
