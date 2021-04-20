@@ -17,7 +17,9 @@ types:
 
   - TDC_COARSE_BITS: [qualifier: constant, type: integer, value: 6] # coarse time width
   - TDC_PHASE_BITS: [qualifier: constant, type: integer, value: 2]  # phase bits
-  - TDC_TRIG_BITS: [qualifier: constant, type: integer, value: 3]   # trigger bits in buffer
+
+  - TDC_TRIG_BITS: [qualifier: constant, type: integer, value: 8]   # trigger bits in buffer
+
   - TRIGGER_WINDOW: [qualifier: constant, type: integer, value: 25] # trigger window in clocks
 
   - NUM_TDC_BUFFERS: [qualifier: constant, type: integer, value: 4] # multi-hit buffers
