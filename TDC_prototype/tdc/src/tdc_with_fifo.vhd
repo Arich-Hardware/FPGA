@@ -14,14 +14,15 @@ use work.tdc_types.all;
 entity tdc_with_fifo is
 
   port (
-    clk     : in  std_logic_vector(3 downto 0);   -- external 4-phase clk
-    rst     : in  std_logic;                      -- active high synch
-    trigger : in  std_logic;                      -- readout trigger
-    pulse   : in  std_logic;                      -- SiPM pulse
-    empty   : out std_logic;                      -- FIFO empty
-    full    : out std_logic;                      -- FIFO full
-    rd_data : out std_logic_vector(31 downto 0);  -- output hits
-    rd_ena  : in  std_logic);                     -- output strobe
+    clk      : in  std_logic_vector(3 downto 0);   -- external 4-phase clk
+    rst      : in  std_logic;                      -- active high synch
+    trigger  : in  std_logic;                      -- readout trigger
+    pulse    : in  std_logic;                      -- SiPM pulse
+    trig_num : in  unsigned(TDC_TRIG_BITS-1 downto 0);
+    empty    : out std_logic;                      -- FIFO empty
+    full     : out std_logic;                      -- FIFO full
+    rd_data  : out tdc_output;
+    rd_ena   : in  std_logic);                     -- output strobe
 
 end entity tdc_with_fifo;
 
@@ -34,8 +35,9 @@ architecture arch of tdc_with_fifo is
       clk          : in  std_logic_vector(3 downto 0);
       pulse        : in  std_logic;
       trigger      : in  std_logic;
+      trig_num     : in  unsigned(TDC_TRIG_BITS-1 downto 0);  -- trigger no.
       buffer_valid : out std_logic;
-      output       : out tdc_output_rt);
+      output       : out tdc_output);
   end component tdc_chan;
 
   component web_fifo is
@@ -57,14 +59,33 @@ architecture arch of tdc_with_fifo is
       fill_count : out integer range RAM_DEPTH - 1 downto 0);
   end component web_fifo;
 
-  signal tdc_rt  : tdc_output_rt;
+<<<<<<< HEAD
+  signal tdc  : tdc_output;
   signal tdc_vec : std_logic_vector(31 downto 0);
   signal valid   : std_logic;
+=======
+  signal tdc      : tdc_output;
+  signal tdc_vec  : std_logic_vector(len(tdc)-1 downto 0);
+  signal valid    : std_logic;
+>>>>>>> 3e2962103efa6f641ccaa9234b9bb024534f1cc5
   signal rd_valid : std_logic;
+
+  signal s_trig_num : unsigned(TDC_TRIG_BITS-1 downto 0);
+
+  signal rd_data_rec : tdc_output;
+  signal rd_data_vec : std_logic_vector( len(rd_data_rec)-1 downto 0);
 
 begin  -- architecture arch
 
-  tdc_vec <= vectorify(tdc_rt, tdc_vec);
+  tdc_vec <= vectorify(tdc, tdc_vec);
+<<<<<<< HEAD
+=======
+  rd_data_rec <= structify( rd_data_vec, rd_data_rec);
+
+  rd_data <= rd_data_rec;
+
+  s_trig_num <= trig_num;
+>>>>>>> 3e2962103efa6f641ccaa9234b9bb024534f1cc5
 
   tdc_chan_1 : entity work.tdc_chan
     port map (
@@ -72,12 +93,13 @@ begin  -- architecture arch
       clk          => clk,
       pulse        => pulse,
       trigger      => trigger,
+      trig_num     => s_trig_num,
       buffer_valid => valid,
-      output       => tdc_rt);
+      output       => tdc);
 
   web_fifo_1 : entity work.web_fifo
     generic map (
-      RAM_WIDTH => 32,
+      RAM_WIDTH => len(tdc),
       RAM_DEPTH => 128)
     port map (
       clk        => clk(0),
@@ -86,7 +108,7 @@ begin  -- architecture arch
       wr_data    => tdc_vec,
       rd_en      => rd_ena,
       rd_valid   => rd_valid,
-      rd_data    => rd_data,
+      rd_data    => rd_data_vec,
       empty      => empty,
       empty_next => open,
       full       => full,

@@ -11,38 +11,43 @@ config:
       - IEEE:
         - std_logic_1164
         - numeric_std
+        - math_real
 
 types:
 
   - TDC_COARSE_BITS: [qualifier: constant, type: integer, value: 6] # coarse time width
   - TDC_PHASE_BITS: [qualifier: constant, type: integer, value: 2]  # phase bits
-  - TDC_TRIG_BITS: [qualifier: constant, type: integer, value: 3]   # trigger bits in buffer
-  - NUM_TDC_BUFFERS: [qualifier: constant, type: integer, value: 4] # multi-hit buffers
+
+  - TDC_TRIG_BITS: [qualifier: constant, type: integer, value: 8]   # trigger bits in buffer
+
   - TRIGGER_WINDOW: [qualifier: constant, type: integer, value: 25] # trigger window in clocks
+
+  - NUM_TDC_BUFFERS: [qualifier: constant, type: integer, value: 4] # multi-hit buffers
 
   - TDC_TIMEOUT_BITS: [qualifier: constant, type: integer, value: 6] # timeout counter bits
   - TDC_TIMEOUT: [qualifier: constant, type: integer, value: 35]    # timeout window in clocks
 
-  # note:  this is log(2) of NUM_TDC_BUFFERS.  Don't know how to express this in YAML!
-  - TDC_BUFFER_NUM_BITS: [qualifier: constant, type: integer, value: 2] # multi-hit buffers
+  # calculate number of bits to hold the buffer number
+  # (this is possibly fragile code, dependent on specific yml2hdl version)
+  - TDC_BUFFER_NUM_BITS: [qualifier: constant, type: integer, value: integer(ceil(log2(real(NUM_TDC_BUFFERS)))) ]
 
 # base type for one TDC hit (size: 16)
-  - tdc_hit_rt:
+  - tdc_hit_data:
       - le_time: [type: unsigned, length: TDC_COARSE_BITS]
       - le_phase: [type: logic, length: TDC_PHASE_BITS]
       - te_time: [type: unsigned, length: TDC_COARSE_BITS]
       - te_phase: [type: logic, length: TDC_PHASE_BITS]
   
 # type for one TDC buffer inside the TDC logic
-  - tdc_buffer_rt:
-      - hit: [type: tdc_hit_rt]
+  - tdc_buffer:
+      - hit: [type: tdc_hit_data]
       - readme: [type: logic]
 
-  - tdc_buffer_group_rt: [array: NUM_TDC_BUFFERS, type: tdc_buffer_rt]
+  - tdc_buffer_group: [array: NUM_TDC_BUFFERS, type: tdc_buffer]
 
 # type for output of multi-hit TDC (size: 21)
-  - tdc_output_rt:
-      - hit: [type: tdc_hit_rt]
+  - tdc_output:
+      - hit: [type: tdc_hit_data]
       - trigger_number: [type: unsigned, length: TDC_TRIG_BITS]
       - buffer_number: [type: unsigned, length: TDC_BUFFER_NUM_BITS]
       - glitch: [type: logic]

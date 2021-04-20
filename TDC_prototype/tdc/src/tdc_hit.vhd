@@ -33,7 +33,7 @@ entity tdc_hit is
     del_trig : in  std_logic;           -- delayed trigger (end of window)
     -- output
     readme   : out std_logic;  -- readout request strobe (1 clock wide)
-    hit      : out tdc_hit_rt           -- times/phases
+    hit      : out tdc_hit_data           -- times/phases
     );
 
 end entity tdc_hit;
@@ -51,7 +51,7 @@ architecture arch of tdc_hit is
   signal valid : std_logic;             -- hit validated by trigger
 
   -- local copy for reading
-  signal s_hit    : tdc_hit_rt;
+  signal s_hit    : tdc_hit_data;
   signal s_readme : std_logic;
 
 begin  -- architecture arch
