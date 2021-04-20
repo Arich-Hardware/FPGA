@@ -26,3 +26,4 @@ tdc_chan_tb.ghw: ../TDC_prototype/tdc/src/multi_sample.vhd ../TDC_prototype/tdc/
 	ghdl -e --ieee=synopsys tdc_chan_tb
 	ghdl -r --ieee=synopsys tdc_chan_tb --stop-time=1ms --wave=tdc_chan_tb.ghw
 
+
