@@ -8,6 +8,7 @@ void write(){
 
 	//dark hit, end of dark hit, trigger
 	vector<double> dtime[nchan], etime[nchan], ttime;
+	vector<int> ichan;
 	//number of hits
 	int ndsim;
 	for(int j=0;j<nchan;j++){
@@ -32,24 +33,38 @@ void write(){
 		sort(dtime[j].begin(), dtime[j].end());
 		//remove overlaps in dark hits
 		etime[j].push_back(gRandom->Rndm()*100);
+		ichan.push_back(j);
 		for(int i=1;i<dtime[j].size();i++){
 			if(dtime[j][i]<dtime[j][i-1]+50 || dtime[j][i]<dtime[j][i-1]+etime[j][i-1]){
 				dtime[j].erase(dtime[j].begin()+i);
 				i--;
 			}
-			else etime[j].push_back(gRandom->Rndm()*100);
+			else{
+				etime[j].push_back(gRandom->Rndm()*100);
+				ichan.push_back(j);
+			}
 		}
 	}
 	sort(ttime.begin(), ttime.end());
 
+	//combine
+	for(int j=1;j<nchan;j++){
+		dtime[0].insert(dtime[0].end(), dtime[j].begin(), dtime[j].end());
+		etime[0].insert(etime[0].end(), etime[j].begin(), etime[j].end());
+	}
+	vector<int> idx(dtime[0].size());
+   iota(idx.begin(), idx.end(), 0);
+	sort(idx.begin(),idx.end(), [&](int i,int j){return dtime[0][i]<dtime[0][j];} );
+	sort(dtime[0].begin(), dtime[0].end());
+
 	//print out
-	ofstream tri_f("trigger.dat");
-	ofstream hit_f[4];
-	for(int i=0;i<ttime.size();i++)tri_f<<Form("T %0.1f",ttime[i])<<endl;
-	for(int j=0;j<nchan;j++){
-		hit_f[j].open(Form("hit_%i.dat",j));
-		for(int i=0;i<dtime[j].size();i++){
-			hit_f[j]<<Form("S %0.1f %i %0.1f",dtime[j][i],j,etime[j][i])<<endl;
+	ofstream out_f("testbench.dat");
+	int ati=0;
+	for(int i=0;i<dtime[0].size();i++){
+		if(ati<ntsim)if(ttime[ati]<dtime[0][i]){
+			out_f<<Form("T %0.1f",ttime[ati])<<endl;
+			ati++;
 		}
+		out_f<<Form("S %0.1f %i %0.1f",dtime[0][i],ichan[idx[i]],etime[0][idx[i]])<<endl;
 	}
 }

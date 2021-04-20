@@ -19,7 +19,7 @@ architecture bench of tdc_chan_tb is
 
   component tdc_chan is
     generic (
-      NCHAN : integer);
+      NCHAN : integer := 4);
     port (
       rst          : in  std_logic;
       clk          : in  std_logic_vector(3 downto 0);
@@ -69,10 +69,10 @@ begin
 
   pulse_sim : process
 
-    file file_handler            : text open read_mode is "random_data/hit_0.dat";
+    file file_handler            : text open read_mode is "random_data/testbench.dat";
     variable row                 : line;
     variable bufr                : line;
-    variable flag                : string(1 to 1);
+    variable flag                : character;
     variable stime, ptime, width : real;
     variable chanID              : integer;
 
@@ -93,48 +93,20 @@ begin
       readline(file_handler, row);
       -- Read value from line
       read(row, flag);
-      if(flag = "S") then
-        read(row, stime);
+      read(row, stime);
+		wait for (stime * 1 ns) - now;
+
+      if(flag = 'S') then
         read(row, chanID);
         read(row, width);
-        wait for (stime-ptime) * 1 ns;
+
         pulse <= '1';
-        wait for width* 1 ns;
-        pulse <= '0';
-        ptime := stime + width;
+        pulse <= transport '0' after (width * 1 ns);
+	  elsif(flag = 'T') then
+		  trigger <= '1';
+		  trigger <= transport '0' after 4 ns;
       end if;
-    end loop;
-
-    wait;
-
-  end process;
-
-  trig_sim : process
-
-    file file_handler     : text open read_mode is "random_data/trigger.dat";
-    variable row          : line;
-    variable flag         : string(1 to 1);
-    variable stime, ptime : real;
-
-  begin
-
-    ptime   := 0.0;
-    trigger <= '0';
-
-    while not endfile(file_handler) loop
-      -- Read line from file
-      readline(file_handler, row);
-      -- Read value from line
-      read(row, flag);
-      if(flag = "T") then
-        read(row, stime);
-        wait for (stime-ptime)* 1 ns;
-        trigger     <= '1';
-        trig_number <= trig_number + 1;
-        wait for clock_period*2;
-        trigger     <= '0';
-        ptime       := stime + clock_pi*2.0;
-      end if;
+		
     end loop;
 
     wait;
