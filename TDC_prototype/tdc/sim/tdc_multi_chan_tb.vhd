@@ -1,6 +1,7 @@
 --
 -- tdc_multi_chan_tb.vhd:  multi-channel TDC testbench
---
+-- read LinYan's combined data file
+-- 
 -- E.Hazen
 --
 
@@ -8,11 +9,13 @@ library IEEE;
 use IEEE.Std_logic_1164.all;
 use IEEE.Numeric_Std.all;
 use work.tdc_types.all;
+use work.my_textio.all;
+use work.tdc_types_textio.all;
 
-entity tdc_with_fifo_tb is
-end entity tdc_with_fifo_tb;
+entity tdc_multi_chan_tb is
+end entity tdc_multi_chan_tb;
 
-architecture sim of tdc_with_fifo_tb is
+architecture sim of tdc_multi_chan_tb is
 
   component tdc_multi_chan is
     generic (
@@ -29,92 +32,115 @@ architecture sim of tdc_with_fifo_tb is
       rd_ena   : in  std_logic_vector(NUM_TDC_CHANNELS-1 downto 0));
   end component tdc_multi_chan;
 
-  signal clk                 : std_logic_vector(3 downto 0);
-  signal rst                 : std_logic;
-  signal trigger, pulse      : std_logic;
-  signal empty, full, rd_ena : std_logic;
+  signal clk     : std_logic_vector(3 downto 0);
+  signal rst     : std_logic;
+  signal trigger : std_logic;
 
-  signal fifo_out_rec        : tdc_output;
+  signal empty, full, rd_ena : std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
+  signal s_pulse             : std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
 
   constant clock_period : time := 4 ns;
   signal stop_the_clock : boolean;
 
   signal trig_num : unsigned(TDC_TRIG_BITS-1 downto 0);
 
+  signal rd_data : tdc_output_array;
+
 begin  -- architecture sim
 
-  tdc_multi_chan_1: entity work.tdc_multi_chan
+  tdc_multi_chan_1 : entity work.tdc_multi_chan
     port map (
       clk      => clk,
       rst      => rst,
       trigger  => trigger,
       trig_num => trig_num,
-      pulse    => pulse,
+      pulse    => s_pulse,
       rd_data  => rd_data,
       empty    => empty,
       full     => full,
       rd_ena   => rd_ena);
 
-  stimulus : process
+
+  pulse_sim : process
+
+    file file_handler            : text open read_mode is "random_data/testbench.dat";
+    variable row                 : line;
+    variable bufr                : line;
+    variable flag                : character;
+    variable stime, ptime, width : real;
+    variable chanID              : integer;
+
   begin
 
     -- Put initialisation code here
-    rst    <= '1';
-    pulse  <= '0';
-    rd_ena <= '0';
-    wait for clock_period;
-    rst    <= '0';
-    wait for clock_period;
-
-    -- now at 8ns
-    -- two pulses within trigger
-    wait for 1.5 ns;
-    wait for clock_period*5;
-    pulse <= '1';
-    wait for clock_period*3;
+    rst   <= '1';
     pulse <= '0';
+    wait for clock_period*4;
+    rst   <= '0';
+    wait for clock_period*4;
 
-    wait for 1.5 ns;
-    wait for clock_period*7;
-    pulse <= '1';
-    wait for clock_period*3;
-    pulse <= '0';
+    -- account for reset time before starting
+    ptime := clock_pi * 8.0;
 
-    -- now at 17 clocks
-    -- pulse after trigger
-    wait for clock_period*5;
-    pulse <= '1';
-    wait for clock_period*10;
-    pulse <= '0';
+    while not endfile(file_handler) loop
+      -- Read line from file
+      readline(file_handler, row);
+      -- Read value from line
+      read(row, flag);
+      read(row, stime);
+      wait for (stime * 1 ns) - now;
 
-    wait for clock_period*30;
-    rd_ena <= '1';
-    wait for clock_period;
-    rd_ena <= '0';
+      if(flag = 'S') then
+        read(row, chanID);
+        read(row, width);
 
-    wait for clock_period*2;
-    rd_ena <= '1';
-    wait for clock_period;
-    rd_ena <= '0';
+        pulse(chanID) <= '1';
+        pulse(chanID) <= transport '0' after (width * 1 ns);
+      elsif(flag = 'T') then
+        trigger <= '1';
+        trigger <= transport '0' after 4 ns;
+      end if;
 
-
+    end loop;
 
     wait;
 
   end process;
 
-  -- generate (delayed) triggers at 100ns, 210ns, 320ns etc
-  trig : process
+  vec_writer : process is
+
+    variable v_LINE : line;              -- line buffer
+    variable v_SPC  : character := ' ';  -- for space parsing
+    variable buff   : line;              -- for debug output
+    variable temp   : integer;
+    file file_out   : text;              -- file handle
+    variable v_tyme : integer;
+
   begin
-    trigger <= '0';
+
+    file_open(file_out, "tdc_output.txt", write_mode);
+
+    -- wait for reset
+    wait for clock_period*8;
+
     while true loop
-      wait for clock_period*25;
-      trigger <= '1';
-      wait for clock_period*2;
-      trigger <= '0';
-      wait for clock_period*25;
+
+      -- scan through ports for valid data
+      wait until empty(0) = '0';
+      write(v_LINE, now / 1 ns);
+      write(v_LINE, v_SPC);
+      write(v_LINE, s_output);
+      writeline(file_out, v_LINE);
+      wait for clock_period;
+
     end loop;
-  end process;
+
+    wait;
+
+  end process vec_writer;
+
+
+
 
   g_multiphase : for i in 0 to 3 generate
     clocking : process

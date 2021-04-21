@@ -28,6 +28,8 @@ tdc_multi_chan_tb.ghw: ../src/multi_sample.vhd ../src/decode.vhd tdc_with_fifo_t
 	../src/tdc_multi_chan.vhd
 	rm -f work-obj93.cf
 	ghdl -a --ieee=synopsys ../src/tdc_types.vhd
+	ghdl -a --ieee=synopsys my_textio.vhd
+	ghdl -a --ieee=synopsys tdc_types_textio.vhd
 	ghdl -a --ieee=synopsys ../src/tdc_hit.vhd
 	ghdl -a --ieee=synopsys ../src/tdc_hit_mux.vhd
 	ghdl -a --ieee=synopsys ../src/multi_sample.vhd
