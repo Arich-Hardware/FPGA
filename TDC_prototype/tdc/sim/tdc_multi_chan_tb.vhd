@@ -8,6 +8,7 @@
 library IEEE;
 use IEEE.Std_logic_1164.all;
 use IEEE.Numeric_Std.all;
+use std.textio.all;
 use work.tdc_types.all;
 use work.my_textio.all;
 use work.tdc_types_textio.all;
@@ -63,7 +64,7 @@ begin  -- architecture sim
 
   pulse_sim : process
 
-    file file_handler            : text open read_mode is "random_data/testbench.dat";
+    file file_handler            : text open read_mode is "combined_sorted.dat";
     variable row                 : line;
     variable bufr                : line;
     variable flag                : character;
@@ -74,13 +75,11 @@ begin  -- architecture sim
 
     -- Put initialisation code here
     rst   <= '1';
-    pulse <= '0';
+    s_pulse <= (others => '0');
+    rd_ena <= (others => '0');
     wait for clock_period*4;
     rst   <= '0';
     wait for clock_period*4;
-
-    -- account for reset time before starting
-    ptime := clock_pi * 8.0;
 
     while not endfile(file_handler) loop
       -- Read line from file
@@ -94,8 +93,8 @@ begin  -- architecture sim
         read(row, chanID);
         read(row, width);
 
-        pulse(chanID) <= '1';
-        pulse(chanID) <= transport '0' after (width * 1 ns);
+        s_pulse(chanID) <= '1';
+        s_pulse(chanID) <= transport '0' after (width * 1 ns);
       elsif(flag = 'T') then
         trigger <= '1';
         trigger <= transport '0' after 4 ns;
@@ -129,7 +128,7 @@ begin  -- architecture sim
       wait until empty(0) = '0';
       write(v_LINE, now / 1 ns);
       write(v_LINE, v_SPC);
-      write(v_LINE, s_output);
+      write(v_LINE, rd_data);
       writeline(file_out, v_LINE);
       wait for clock_period;
 
