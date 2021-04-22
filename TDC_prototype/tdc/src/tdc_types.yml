@@ -15,21 +15,32 @@ config:
 
 types:
 
-  - TDC_COARSE_BITS: [qualifier: constant, type: integer, value: 6] # coarse time width
-  - TDC_PHASE_BITS: [qualifier: constant, type: integer, value: 2]  # phase bits
-
-  - TDC_TRIG_BITS: [qualifier: constant, type: integer, value: 8]   # trigger bits in buffer
-
+  # this which may change frequently
+  - NUM_TDC_CHANNELS: [qualifier: constant, type: integer, value: 4] # number of channels
   - TRIGGER_WINDOW: [qualifier: constant, type: integer, value: 25] # trigger window in clocks
-
-  - NUM_TDC_BUFFERS: [qualifier: constant, type: integer, value: 4] # multi-hit buffers
-
-  - TDC_TIMEOUT_BITS: [qualifier: constant, type: integer, value: 6] # timeout counter bits
   - TDC_TIMEOUT: [qualifier: constant, type: integer, value: 35]    # timeout window in clocks
 
-  # calculate number of bits to hold the buffer number
+  # basic TDC characteristics
+  - TDC_COARSE_BITS: [qualifier: constant, type: integer, value: 6] # coarse time width
+  - TDC_PHASE_BITS: [qualifier: constant, type: integer, value: 2]  # phase bits
+  - NUM_TDC_BUFFERS: [qualifier: constant, type: integer, value: 4] # multi-hit buffers
+
+  # readout-related
+  - TDC_TRIG_BITS: [qualifier: constant, type: integer, value: 8]   # trigger bits in buffer
+  - TDC_FIFO_DEPTH: [qualifier: constant, type: integer, value: 8]   # FIFO depth
+
+
+
+  # calculate number of bits to hold various quantities
   # (this is possibly fragile code, dependent on specific yml2hdl version)
+
+  # timeout counter bits
+  - TDC_TIMEOUT_BITS: [qualifier: constant, type: integer, value: integer(ceil(log2(real(TDC_TIMEOUT)))) ] 
+  # channel number bits
+  - TDC_CHAN_NUM_BITS: [qualifier: constant, type: integer, value: integer(ceil(log2(real(NUM_TDC_CHANNELS)))) ]
+  # buffer count bits
   - TDC_BUFFER_NUM_BITS: [qualifier: constant, type: integer, value: integer(ceil(log2(real(NUM_TDC_BUFFERS)))) ]
+
 
 # base type for one TDC hit (size: 16)
   - tdc_hit_data:
@@ -53,3 +64,5 @@ types:
       - glitch: [type: logic]
       - error: [type: logic]
         
+# type for array of TDC outputs
+  - tdc_output_array: [array: NUM_TDC_CHANNELS, type: tdc_output]

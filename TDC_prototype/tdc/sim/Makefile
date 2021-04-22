@@ -5,7 +5,10 @@
 # run perl script with modules from the yml2tb submodule
 PERLRUN = perl -I../../../yml2tb
 
-all: multi_tb.ghw tdc_chan_tb.ghw tdc_hit_tb.ghw tdc_hit_mux_tb.ghw tdc_with_fifo_tb.ghw
+latest: tdc_multi_chan_tb.ghw
+
+all: multi_tb.ghw tdc_chan_tb.ghw tdc_hit_tb.ghw tdc_hit_mux_tb.ghw tdc_with_fifo_tb.ghw \
+	tdc_multi_chan_tb.ghw
 
 clean:
 	rm -f *~ *.cf *.vcd *.ghw *.db
@@ -21,6 +24,25 @@ tdc_types_textio.vhd: tdc_types.db
 # create the VHDL types from the YAML file using yml2hdl
 ../src/tdc_types.vhd: ../src/tdc_types.yml
 	python ../../../yml2hdl/yml2hdl.py ../src/tdc_types.yml
+
+tdc_multi_chan_tb.ghw: ../src/multi_sample.vhd ../src/decode.vhd tdc_with_fifo_tb.vhd ../src/tdc_chan.vhd \
+	../src/tdc_types.vhd ../src/web_fifo.vhd ../src/tdc_with_fifo.vhd ../src/tdc_hit_mux.vhd \
+	../src/tdc_multi_chan.vhd
+	rm -f work-obj93.cf
+	ghdl -a --ieee=synopsys ../src/tdc_types.vhd
+	ghdl -a --ieee=synopsys my_textio.vhd
+	ghdl -a --ieee=synopsys tdc_types_textio.vhd
+	ghdl -a --ieee=synopsys ../src/tdc_hit.vhd
+	ghdl -a --ieee=synopsys ../src/tdc_hit_mux.vhd
+	ghdl -a --ieee=synopsys ../src/multi_sample.vhd
+	ghdl -a --ieee=synopsys ../src/decode.vhd
+	ghdl -a --ieee=synopsys ../src/tdc_chan.vhd
+	ghdl -a --ieee=synopsys ../src/web_fifo.vhd
+	ghdl -a --ieee=synopsys ../src/tdc_with_fifo.vhd
+	ghdl -a --ieee=synopsys ../src/tdc_multi_chan.vhd
+	ghdl -a --ieee=synopsys tdc_multi_chan_tb.vhd
+	ghdl -e --ieee=synopsys tdc_multi_chan_tb
+	ghdl -r --ieee=synopsys tdc_multi_chan_tb --stop-time=1000us --wave=tdc_multi_chan_tb.ghw
 
 tdc_hit_tb.ghw: tdc_hit_tb.vhd ../src/tdc_hit.vhd ../src/tdc_types.vhd
 	rm -f work-obj93.cf
