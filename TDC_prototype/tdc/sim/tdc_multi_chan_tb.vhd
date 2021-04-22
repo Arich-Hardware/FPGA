@@ -22,15 +22,15 @@ architecture sim of tdc_multi_chan_tb is
     generic (
       NUM_CHAN : integer);
     port (
-      clk      : in  std_logic_vector(3 downto 0);
-      rst      : in  std_logic;
-      trigger  : in  std_logic;
-      trig_num : in  unsigned(TDC_TRIG_BITS-1 downto 0);
-      pulse    : in  std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
-      rd_data  : out tdc_output_array;
-      empty    : out std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
-      full     : out std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
-      rd_ena   : in  std_logic_vector(NUM_TDC_CHANNELS-1 downto 0));
+      clk        : in  std_logic_vector(3 downto 0);
+      rst        : in  std_logic;
+      trigger    : in  std_logic;
+      trig_num   : in  unsigned(TDC_TRIG_BITS-1 downto 0);
+      pulse      : in  std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
+      rd_data    : out tdc_output_array;
+      empty      : out std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
+      full       : out std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
+      rd_ena     : in  std_logic_vector(NUM_TDC_CHANNELS-1 downto 0));
   end component tdc_multi_chan;
 
   signal clk     : std_logic_vector(3 downto 0);
@@ -43,7 +43,7 @@ architecture sim of tdc_multi_chan_tb is
   constant clock_period : time := 4 ns;
   signal stop_the_clock : boolean;
 
-  signal trig_num : unsigned(TDC_TRIG_BITS-1 downto 0);
+  signal trig_num : unsigned(TDC_TRIG_BITS-1 downto 0) := (others => '0');
 
   signal rd_data : tdc_output_array;
 
@@ -74,11 +74,11 @@ begin  -- architecture sim
   begin
 
     -- Put initialisation code here
-    rst   <= '1';
+    rst     <= '1';
     s_pulse <= (others => '0');
-    rd_ena <= (others => '0');
+    rd_ena  <= (others => '0');
     wait for clock_period*4;
-    rst   <= '0';
+    rst     <= '0';
     wait for clock_period*4;
 
     while not endfile(file_handler) loop
@@ -98,6 +98,7 @@ begin  -- architecture sim
       elsif(flag = 'T') then
         trigger <= '1';
         trigger <= transport '0' after 4 ns;
+        trig_num <= trig_num + 1;
       end if;
 
     end loop;

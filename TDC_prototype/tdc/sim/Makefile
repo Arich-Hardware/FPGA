@@ -5,6 +5,8 @@
 # run perl script with modules from the yml2tb submodule
 PERLRUN = perl -I../../../yml2tb
 
+latest: tdc_multi_chan_tb.ghw
+
 all: multi_tb.ghw tdc_chan_tb.ghw tdc_hit_tb.ghw tdc_hit_mux_tb.ghw tdc_with_fifo_tb.ghw \
 	tdc_multi_chan_tb.ghw
 
@@ -40,7 +42,7 @@ tdc_multi_chan_tb.ghw: ../src/multi_sample.vhd ../src/decode.vhd tdc_with_fifo_t
 	ghdl -a --ieee=synopsys ../src/tdc_multi_chan.vhd
 	ghdl -a --ieee=synopsys tdc_multi_chan_tb.vhd
 	ghdl -e --ieee=synopsys tdc_multi_chan_tb
-	ghdl -r --ieee=synopsys tdc_multi_chan_tb --stop-time=750ns --wave=tdc_multi_chan_tb.ghw
+	ghdl -r --ieee=synopsys tdc_multi_chan_tb --stop-time=1000us --wave=tdc_multi_chan_tb.ghw
 
 tdc_hit_tb.ghw: tdc_hit_tb.vhd ../src/tdc_hit.vhd ../src/tdc_types.vhd
 	rm -f work-obj93.cf
