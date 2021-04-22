@@ -3,7 +3,8 @@ void write(){
 	const int nchan=4;
 
 	double dark_rate=6.25e-3, trigger_rate=30e-6;//per ns
-	double sim_time=1e6, trig_delay=100, Che_var=1;//ns
+	double dark_width_up=95;//width=5+ran*up
+	double sim_time=1e6, trig_delay=90, Che_var=1;//ns, [T-100, T]=[T0-10, T0+90]
 	double meanh=60./5e3;//average Cherenkov hit number per channel
 
 	//dark hit, end of dark hit, trigger
@@ -32,7 +33,7 @@ void write(){
 	for(int j=0;j<nchan;j++){
 		sort(dtime[j].begin(), dtime[j].end());
 		//remove overlaps in dark hits
-		etime[j].push_back(gRandom->Rndm()*100);
+		etime[j].push_back(gRandom->Rndm()*dark_width_up+5);
 		ichan.push_back(j);
 		for(int i=1;i<dtime[j].size();i++){
 			if(dtime[j][i]<dtime[j][i-1]+50 || dtime[j][i]<dtime[j][i-1]+etime[j][i-1]){
@@ -40,7 +41,7 @@ void write(){
 				i--;
 			}
 			else{
-				etime[j].push_back(gRandom->Rndm()*100);
+				etime[j].push_back(gRandom->Rndm()*dark_width_up+5);
 				ichan.push_back(j);
 			}
 		}
