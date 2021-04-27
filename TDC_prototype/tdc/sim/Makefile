@@ -5,7 +5,8 @@
 # run perl script with modules from the yml2tb submodule
 PERLRUN = perl -I../../../yml2tb
 
-latest: tdc_multi_chan_tb.ghw
+#latest: tdc_multi_chan_tb.ghw
+latest: event_builder_tb.ghw
 
 all: multi_tb.ghw tdc_chan_tb.ghw tdc_hit_tb.ghw tdc_hit_mux_tb.ghw tdc_with_fifo_tb.ghw \
 	tdc_multi_chan_tb.ghw
@@ -98,3 +99,40 @@ tdc_hit_mux_tb.ghw: ../src/tdc_types.vhd ../src/tdc_hit_mux.vhd tdc_hit_mux_tb.v
 	ghdl -a --ieee=synopsys tdc_hit_mux_tb.vhd
 	ghdl -e --ieee=synopsys tdc_hit_mux_tb
 	ghdl -r --ieee=synopsys tdc_hit_mux_tb --stop-time=750ns --wave=tdc_hit_mux_tb.ghw
+
+trigger_tdc_tb.ghw: ../src/trigger_tdc.vhd ../src/decode.vhd ../src/multi_sample.vhd \
+	../src/tdc_types.vhd tdc_types_textio.vhd my_textio.vhd trigger_tdc_tb.vhd
+	rm -f work-obj93.cf
+	ghdl -a --ieee=synopsys ../src/tdc_types.vhd
+	ghdl -a --ieee=synopsys my_textio.vhd
+	ghdl -a --ieee=synopsys tdc_types_textio.vhd
+	ghdl -a --ieee=synopsys ../src/decode.vhd
+	ghdl -a --ieee=synopsys ../src/multi_sample.vhd
+	ghdl -a --ieee=synopsys ../src/trigger_tdc.vhd
+	ghdl -a --ieee=synopsys trigger_tdc_tb.vhd
+	ghdl -e --ieee=synopsys trigger_tdc_tb
+	ghdl -r --ieee=synopsys trigger_tdc_tb --stop-time=750ns --wave=trigger_tdc_tb.ghw
+
+event_builder_tb.ghw: ../src/event_builder.vhd ../src/decode.vhd ../src/multi_sample.vhd \
+	../src/tdc_types.vhd tdc_types_textio.vhd my_textio.vhd event_builder_tb.vhd \
+	../src/trigger_tdc.vhd ../src/tdc_chan.vhd ../src/tdc_multi_chan.vhd \
+	../src/tdc_hit_mux.vhd ../src/tdc_hit.vhd ../src/tdc_with_fifo.vhd \
+	../src/web_fifo.vhd ../src/trigger_tdc_with_fifo.vhd
+	rm -f work-obj93.cf
+	ghdl -a --ieee=synopsys ../src/tdc_types.vhd
+	ghdl -a --ieee=synopsys my_textio.vhd
+	ghdl -a --ieee=synopsys tdc_types_textio.vhd
+	ghdl -a --ieee=synopsys ../src/decode.vhd
+	ghdl -a --ieee=synopsys ../src/multi_sample.vhd
+#	ghdl -a --ieee=synopsys ../src/event_builder.vhd
+	ghdl -a --ieee=synopsys ../src/tdc_hit.vhd
+	ghdl -a --ieee=synopsys ../src/tdc_hit_mux.vhd
+	ghdl -a --ieee=synopsys ../src/tdc_chan.vhd
+	ghdl -a --ieee=synopsys ../src/web_fifo.vhd
+	ghdl -a --ieee=synopsys ../src/tdc_with_fifo.vhd
+	ghdl -a --ieee=synopsys ../src/tdc_multi_chan.vhd
+	ghdl -a --ieee=synopsys ../src/trigger_tdc.vhd
+	ghdl -a --ieee=synopsys ../src/trigger_tdc_with_fifo.vhd
+	ghdl -a --ieee=synopsys event_builder_tb.vhd
+	ghdl -e --ieee=synopsys event_builder_tb
+	ghdl -r --ieee=synopsys event_builder_tb --stop-time=250us --wave=event_builder_tb.ghw
