@@ -41,6 +41,6 @@ architecture synth of event_builder is
 
 begin  -- architecture synth
 
-
+  
 
 end architecture synth;
