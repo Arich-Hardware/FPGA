@@ -42,6 +42,9 @@ architecture synth of event_builder is
 
   signal current_chan : integer range 0 to NUM_TDC_CHANNELS := 0;
 
+  signal trig_empty_r : std_logic;      --delay register for empty
+  signal tdc_empty_r  : std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
+
 begin  -- architecture synth
 
   process (clk, rst) is
@@ -50,22 +53,29 @@ begin  -- architecture synth
       current_chan <= 0;
     elsif rising_edge(clk) then         -- rising clock edge
 
-      data_valid <= '0';
-      rd_ena <= (others => '0');
+      -- default values for strobes
+      data_valid  <= '0';
+      rd_ena      <= (others => '0');
       trig_rd_ena <= '0';
+
+      tdc_empty_r <= tdc_empty;         -- delayed empty
+      trig_empty_r = trig_empty;
 
       if current_chan = NUM_TDC_CHANNELS then
         -- pointing at the trigger
-        if trig_valid = '0' then
+        if trig_empty = '0' and trig_empty_r = '0' then
           data_out   <= vectorify(trig_in, data_out);
+          trig_rd_ena <= '1';
           data_valid <= '1';
         end if;
         current_chan <= 0;
       else
         -- pointing at a TDC channel
-        if tdc_empty(to_integer(current_chan)) = '0' then
+        if tdc_empty(to_integer(current_chan)) = '0' and
+           tdc_empty_r( to_integer(current_chan)) = '0' then
           data_out <= vectorify(tdc_data(to_integer(current_chan)),
                                 data_out);
+          rd_ena( to_integer(current_chan)) <= '1';
           data_valid <= '1';
         end if;
         current_chan <= current_chan + 1;
