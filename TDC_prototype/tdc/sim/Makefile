@@ -5,7 +5,14 @@
 # run perl script with modules from the yml2tb submodule
 PERLRUN = perl -I../../../yml2tb
 
-#latest: tdc_multi_chan_tb.ghw
+# run GHDL
+GHDLRUN = /usr/bin/ghdl
+GHDLOPT = --ieee=synopsys
+GHDLA = $(GHDLRUN) -a $(GHDLOPT)
+GHDLE = $(GHDLRUN) -e $(GHDLOPT)
+GHDLR = $(GHDLRUN) -r $(GHDLOPT)
+
+#latest: fifo_tb.ghw
 latest: event_builder_tb.ghw
 
 all: multi_tb.ghw tdc_chan_tb.ghw tdc_hit_tb.ghw tdc_hit_mux_tb.ghw tdc_with_fifo_tb.ghw \
@@ -30,88 +37,88 @@ tdc_multi_chan_tb.ghw: ../src/multi_sample.vhd ../src/decode.vhd tdc_with_fifo_t
 	../src/tdc_types.vhd ../src/web_fifo.vhd ../src/tdc_with_fifo.vhd ../src/tdc_hit_mux.vhd \
 	../src/tdc_multi_chan.vhd
 	rm -f work-obj93.cf
-	ghdl -a --ieee=synopsys ../src/tdc_types.vhd
-	ghdl -a --ieee=synopsys my_textio.vhd
-	ghdl -a --ieee=synopsys tdc_types_textio.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_hit.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_hit_mux.vhd
-	ghdl -a --ieee=synopsys ../src/multi_sample.vhd
-	ghdl -a --ieee=synopsys ../src/decode.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_chan.vhd
-	ghdl -a --ieee=synopsys ../src/web_fifo.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_with_fifo.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_multi_chan.vhd
-	ghdl -a --ieee=synopsys tdc_multi_chan_tb.vhd
-	ghdl -e --ieee=synopsys tdc_multi_chan_tb
-	ghdl -r --ieee=synopsys tdc_multi_chan_tb --stop-time=1000us --wave=tdc_multi_chan_tb.ghw
+	$(GHDLA) ../src/tdc_types.vhd
+	$(GHDLA) my_textio.vhd
+	$(GHDLA) tdc_types_textio.vhd
+	$(GHDLA) ../src/tdc_hit.vhd
+	$(GHDLA) ../src/tdc_hit_mux.vhd
+	$(GHDLA) ../src/multi_sample.vhd
+	$(GHDLA) ../src/decode.vhd
+	$(GHDLA) ../src/tdc_chan.vhd
+	$(GHDLA) ../src/web_fifo.vhd
+	$(GHDLA) ../src/tdc_with_fifo.vhd
+	$(GHDLA) ../src/tdc_multi_chan.vhd
+	$(GHDLA) tdc_multi_chan_tb.vhd
+	$(GHDLE) tdc_multi_chan_tb
+	$(GHDLR) tdc_multi_chan_tb --stop-time=1000us --wave=tdc_multi_chan_tb.ghw
 
 tdc_hit_tb.ghw: tdc_hit_tb.vhd ../src/tdc_hit.vhd ../src/tdc_types.vhd
 	rm -f work-obj93.cf
-	ghdl -a --ieee=synopsys ../src/tdc_types.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_hit.vhd
-	ghdl -a --ieee=synopsys tdc_hit_tb.vhd
-	ghdl -e --ieee=synopsys tdc_hit_tb
-	ghdl -r --ieee=synopsys tdc_hit_tb --stop-time=750ns --wave=tdc_hit_tb.ghw
+	$(GHDLA) ../src/tdc_types.vhd
+	$(GHDLA) ../src/tdc_hit.vhd
+	$(GHDLA) tdc_hit_tb.vhd
+	$(GHDLE) tdc_hit_tb
+	$(GHDLR) tdc_hit_tb --stop-time=750ns --wave=tdc_hit_tb.ghw
 
 tdc_with_fifo_tb.ghw: ../src/multi_sample.vhd ../src/decode.vhd tdc_with_fifo_tb.vhd ../src/tdc_chan.vhd \
 	../src/tdc_types.vhd ../src/web_fifo.vhd ../src/tdc_with_fifo.vhd ../src/tdc_hit_mux.vhd
 	rm -f work-obj93.cf
-	ghdl -a --ieee=synopsys ../src/tdc_types.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_hit.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_hit_mux.vhd
-	ghdl -a --ieee=synopsys ../src/multi_sample.vhd
-	ghdl -a --ieee=synopsys ../src/decode.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_chan.vhd
-	ghdl -a --ieee=synopsys ../src/web_fifo.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_with_fifo.vhd
-	ghdl -a --ieee=synopsys tdc_with_fifo_tb.vhd
-	ghdl -e --ieee=synopsys tdc_with_fifo_tb
-	ghdl -r --ieee=synopsys tdc_with_fifo_tb --stop-time=750ns --wave=tdc_with_fifo_tb.ghw
+	$(GHDLA) ../src/tdc_types.vhd
+	$(GHDLA) ../src/tdc_hit.vhd
+	$(GHDLA) ../src/tdc_hit_mux.vhd
+	$(GHDLA) ../src/multi_sample.vhd
+	$(GHDLA) ../src/decode.vhd
+	$(GHDLA) ../src/tdc_chan.vhd
+	$(GHDLA) ../src/web_fifo.vhd
+	$(GHDLA) ../src/tdc_with_fifo.vhd
+	$(GHDLA) tdc_with_fifo_tb.vhd
+	$(GHDLE) tdc_with_fifo_tb
+	$(GHDLR) tdc_with_fifo_tb --stop-time=750ns --wave=tdc_with_fifo_tb.ghw
 
 multi_tb.ghw: ../src/multi_sample.vhd ../src/multi_tb.vhd ../src/decode.vhd ../src/tdc_types.vhd
 	rm -f work-obj93.cf
-	ghdl -a --ieee=synopsys ../src/tdc_types.vhd
-	ghdl -a --ieee=synopsys ../src/decode.vhd
-	ghdl -a --ieee=synopsys ../src/multi_sample.vhd
-	ghdl -a --ieee=synopsys ../src/multi_tb.vhd
-	ghdl -e --ieee=synopsys multi_tb
-	ghdl -r --ieee=synopsys multi_tb --stop-time=1000ns --wave=multi_tb.ghw
+	$(GHDLA) ../src/tdc_types.vhd
+	$(GHDLA) ../src/decode.vhd
+	$(GHDLA) ../src/multi_sample.vhd
+	$(GHDLA) ../src/multi_tb.vhd
+	$(GHDLE) multi_tb
+	$(GHDLR) multi_tb --stop-time=1000ns --wave=multi_tb.ghw
 
 tdc_chan_tb.ghw: ../src/multi_sample.vhd ../src/decode.vhd tdc_chan_tb.vhd ../src/tdc_chan.vhd \
 	../src/tdc_types.vhd ../src/tdc_hit_mux.vhd tdc_types_textio.vhd my_textio.vhd
 	rm -f work-obj93.cf
-	ghdl -a --ieee=synopsys ../src/tdc_types.vhd
-	ghdl -a --ieee=synopsys my_textio.vhd
-	ghdl -a --ieee=synopsys tdc_types_textio.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_hit.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_hit_mux.vhd
-	ghdl -a --ieee=synopsys ../src/decode.vhd
-	ghdl -a --ieee=synopsys ../src/multi_sample.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_chan.vhd
-	ghdl -a --ieee=synopsys tdc_chan_tb.vhd
-	ghdl -e --ieee=synopsys tdc_chan_tb
-	ghdl -r --ieee=synopsys tdc_chan_tb --stop-time=750ns --wave=tdc_chan_tb.ghw
+	$(GHDLA) ../src/tdc_types.vhd
+	$(GHDLA) my_textio.vhd
+	$(GHDLA) tdc_types_textio.vhd
+	$(GHDLA) ../src/tdc_hit.vhd
+	$(GHDLA) ../src/tdc_hit_mux.vhd
+	$(GHDLA) ../src/decode.vhd
+	$(GHDLA) ../src/multi_sample.vhd
+	$(GHDLA) ../src/tdc_chan.vhd
+	$(GHDLA) tdc_chan_tb.vhd
+	$(GHDLE) tdc_chan_tb
+	$(GHDLR) tdc_chan_tb --stop-time=750ns --wave=tdc_chan_tb.ghw
 
 tdc_hit_mux_tb.ghw: ../src/tdc_types.vhd ../src/tdc_hit_mux.vhd tdc_hit_mux_tb.vhd
 	rm -f work-obj93.cf
-	ghdl -a --ieee=synopsys ../src/tdc_types.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_hit_mux.vhd
-	ghdl -a --ieee=synopsys tdc_hit_mux_tb.vhd
-	ghdl -e --ieee=synopsys tdc_hit_mux_tb
-	ghdl -r --ieee=synopsys tdc_hit_mux_tb --stop-time=750ns --wave=tdc_hit_mux_tb.ghw
+	$(GHDLA) ../src/tdc_types.vhd
+	$(GHDLA) ../src/tdc_hit_mux.vhd
+	$(GHDLA) tdc_hit_mux_tb.vhd
+	$(GHDLE) tdc_hit_mux_tb
+	$(GHDLR) tdc_hit_mux_tb --stop-time=750ns --wave=tdc_hit_mux_tb.ghw
 
 trigger_tdc_tb.ghw: ../src/trigger_tdc.vhd ../src/decode.vhd ../src/multi_sample.vhd \
 	../src/tdc_types.vhd tdc_types_textio.vhd my_textio.vhd trigger_tdc_tb.vhd
 	rm -f work-obj93.cf
-	ghdl -a --ieee=synopsys ../src/tdc_types.vhd
-	ghdl -a --ieee=synopsys my_textio.vhd
-	ghdl -a --ieee=synopsys tdc_types_textio.vhd
-	ghdl -a --ieee=synopsys ../src/decode.vhd
-	ghdl -a --ieee=synopsys ../src/multi_sample.vhd
-	ghdl -a --ieee=synopsys ../src/trigger_tdc.vhd
-	ghdl -a --ieee=synopsys trigger_tdc_tb.vhd
-	ghdl -e --ieee=synopsys trigger_tdc_tb
-	ghdl -r --ieee=synopsys trigger_tdc_tb --stop-time=750ns --wave=trigger_tdc_tb.ghw
+	$(GHDLA) ../src/tdc_types.vhd
+	$(GHDLA) my_textio.vhd
+	$(GHDLA) tdc_types_textio.vhd
+	$(GHDLA) ../src/decode.vhd
+	$(GHDLA) ../src/multi_sample.vhd
+	$(GHDLA) ../src/trigger_tdc.vhd
+	$(GHDLA) trigger_tdc_tb.vhd
+	$(GHDLE) trigger_tdc_tb
+	$(GHDLR) trigger_tdc_tb --stop-time=750ns --wave=trigger_tdc_tb.ghw
 
 event_builder_tb.ghw: ../src/event_builder.vhd ../src/decode.vhd ../src/multi_sample.vhd \
 	../src/tdc_types.vhd tdc_types_textio.vhd my_textio.vhd event_builder_tb.vhd \
@@ -119,20 +126,26 @@ event_builder_tb.ghw: ../src/event_builder.vhd ../src/decode.vhd ../src/multi_sa
 	../src/tdc_hit_mux.vhd ../src/tdc_hit.vhd ../src/tdc_with_fifo.vhd \
 	../src/web_fifo.vhd ../src/trigger_tdc_with_fifo.vhd
 	rm -f work-obj93.cf
-	ghdl -a --ieee=synopsys ../src/tdc_types.vhd
-	ghdl -a --ieee=synopsys my_textio.vhd
-	ghdl -a --ieee=synopsys tdc_types_textio.vhd
-	ghdl -a --ieee=synopsys ../src/decode.vhd
-	ghdl -a --ieee=synopsys ../src/multi_sample.vhd
-#	ghdl -a --ieee=synopsys ../src/event_builder.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_hit.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_hit_mux.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_chan.vhd
-	ghdl -a --ieee=synopsys ../src/web_fifo.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_with_fifo.vhd
-	ghdl -a --ieee=synopsys ../src/tdc_multi_chan.vhd
-	ghdl -a --ieee=synopsys ../src/trigger_tdc.vhd
-	ghdl -a --ieee=synopsys ../src/trigger_tdc_with_fifo.vhd
-	ghdl -a --ieee=synopsys event_builder_tb.vhd
-	ghdl -e --ieee=synopsys event_builder_tb
-	ghdl -r --ieee=synopsys event_builder_tb --stop-time=250us --wave=event_builder_tb.ghw
+	$(GHDLA) ../src/tdc_types.vhd
+	$(GHDLA) my_textio.vhd
+	$(GHDLA) tdc_types_textio.vhd
+	$(GHDLA) ../src/decode.vhd
+	$(GHDLA) ../src/multi_sample.vhd
+#	$(GHDLA) ../src/event_builder.vhd
+	$(GHDLA) ../src/tdc_hit.vhd
+	$(GHDLA) ../src/tdc_hit_mux.vhd
+	$(GHDLA) ../src/tdc_chan.vhd
+	$(GHDLA) ../src/web_fifo.vhd
+	$(GHDLA) ../src/tdc_with_fifo.vhd
+	$(GHDLA) ../src/tdc_multi_chan.vhd
+	$(GHDLA) ../src/trigger_tdc.vhd
+	$(GHDLA) ../src/trigger_tdc_with_fifo.vhd
+	$(GHDLA) event_builder_tb.vhd
+	$(GHDLE) event_builder_tb
+	$(GHDLR) event_builder_tb --stop-time=250us --wave=event_builder_tb.ghw
+
+fifo_tb.ghw: ../src/web_fifo.vhd fifo_tb.vhd
+	$(GHDLA) ../src/web_fifo.vhd
+	$(GHDLA) fifo_tb.vhd
+	$(GHDLE) fifo_tb
+	$(GHDLR) fifo_tb --stop-time=100ns --wave=fifo_tb.ghw
