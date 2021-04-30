@@ -1,14 +1,15 @@
-int phase(double x){
-	return int((x-int(x/4)*4));
-}
+const int ctd=35, window=25, unit=4, trig_shift=166;
+const int shift_ts=5, shift_tsf=1, shift_te=1, shift_tef=2;
 
-const double ctd=35, window=25, unit=4;
+int phase(double x){
+	return int((x-int(x/unit)*unit));
+}
 
 void read(){
 	ifstream fi("testbench.dat");
 	const int nchan=4;
 
-	vector<double> stime, etime, ttime;
+	vector<double> stime, etime, ttime, now;
 	vector<int> chan;
 	double st, et;
 	int ichan;
@@ -27,16 +28,18 @@ void read(){
 		else if(flag=='T'){
 			fi>>st;
 			ttime.push_back(st);
-			of<<Form("T %6i",int(st))<<endl;
+			now.clear();
 			ts.clear();
 			te.clear();
 			tsf.clear();
 			tef.clear();
 			tchan.clear();
 			for(int i=stime.size()-1;i>=0;i--){
-				if(stime[i]>ttime.back()-window*unit){					
-					ts.push_back(ctd+int(stime[i]/4)-int(ttime.back()/4));
-					te.push_back(ctd+int(stime[i]/4)-int((stime[i]+etime[i])/4));
+				if(stime[i]>ttime.back()-window*unit-shift_ts*unit){
+					if(stime[i]>ttime.back()-shift_ts*unit)continue;
+					now.push_back(int(stime[i])/unit*unit+trig_shift);
+					ts.push_back(ctd+int(stime[i]/unit)-int(ttime.back()/unit));
+					te.push_back(ctd+int(stime[i]/unit)-int((stime[i]+etime[i])/unit));
 					tsf.push_back(phase(stime[i])-phase(ttime.back()));
 					tef.push_back(phase(stime[i])-phase(stime[i]+etime[i]));
 					tchan.push_back(chan[i]);
@@ -44,19 +47,31 @@ void read(){
 				else break;
 			}
 			for(int j=ts.size()-1;j>=0;j--){
+				ts[j]+=shift_ts;
+				tsf[j]+=shift_tsf;
+				te[j]+=shift_te;
+				tef[j]+=shift_tef;
+				if(tsf[j]>unit){
+					ts[j]++;
+					tsf[j]-=unit;
+				}
 				if(tsf[j]<0){
 					ts[j]--;
-					tsf[j]+=4;
+					tsf[j]+=unit;
+				}
+				if(tef[j]>unit){
+					te[j]++;
+					tef[j]-=unit;
 				}
 				if(tef[j]<0){
 					te[j]--;
-					tef[j]+=4;
+					tef[j]+=unit;
 				}
 				if(te[j]<0){
 					te[j]=0;
 					tef[j]=0;
 				}
-				of<<Form("%3i %1i %3i %1i %3i %i", ts[j], tsf[j], te[j], tef[j], int(ttime.size()), tchan[j])<<endl;
+				if(tchan[j]==0)of<<Form("%i %3i %1i %3i %1i %i %i", int(now[j]), ts[j], tsf[j], te[j], tef[j], int(ttime.size()), tchan[j])<<endl;
 			}
 		}
 	}

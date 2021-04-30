@@ -62,6 +62,7 @@ void write(){
 	ofstream out_f("testbench.dat");
 	int ati=0;
 	for(int i=0;i<dtime[0].size();i++){
+		if(dtime[0][i]<100)continue;
 		if(ati<ntsim)if(ttime[ati]<dtime[0][i]){
 			out_f<<Form("T %0.1f",ttime[ati])<<endl;
 			ati++;
