@@ -4,7 +4,7 @@
 # run perl script with modules from the yml2tb submodule
 PERLRUN = perl -I../yml2tb
 
-all: tdc_chan_tb.ghw demo
+all: tdc_chan_tb.ghw 
 clean:
 	rm -f *~ *.cf *.vcd *.ghw
 
@@ -26,7 +26,3 @@ tdc_chan_tb.ghw: ../TDC_prototype/tdc/src/multi_sample.vhd ../TDC_prototype/tdc/
 	ghdl -e --ieee=synopsys tdc_chan_tb
 	ghdl -r --ieee=synopsys tdc_chan_tb --stop-time=1ms --wave=tdc_chan_tb.ghw
 
-demo: demo_tb.vhd
-	ghdl -a --ieee=synopsys demo_tb.vhd
-	ghdl -e --ieee=synopsys demo_tb
-	ghdl -r --ieee=synopsys demo_tb --stop-time=1ms --wave=demo_tb.ghw
