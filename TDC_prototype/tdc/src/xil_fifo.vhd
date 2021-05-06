@@ -59,4 +59,22 @@ begin  -- architecture synth
       dia   => wr_data,
       dob   => rd_data);
 
+  if head = tail then
+    empty <= '1';
+  else
+    empty <= '0';
+  end if;
+
+  if 
+
+  proc1: process (clk, rst) is
+  begin  -- process proc1
+    if rst = '1' then                   -- asynchronous reset (active high)
+      head <= 0;
+      tail <= 0;
+    elsif rising_edge(clk) then         -- rising clock edge
+
+    end if;
+  end process proc1;
+
 end architecture synth;

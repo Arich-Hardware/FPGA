@@ -148,4 +148,4 @@ fifo_tb.ghw: ../src/web_fifo.vhd fifo_tb.vhd
 	$(GHDLA) ../src/web_fifo.vhd
 	$(GHDLA) fifo_tb.vhd
 	$(GHDLE) fifo_tb
-	$(GHDLR) fifo_tb --stop-time=100ns --wave=fifo_tb.ghw
+	$(GHDLR) fifo_tb --stop-time=1000ns --wave=fifo_tb.ghw

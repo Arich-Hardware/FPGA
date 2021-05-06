@@ -47,7 +47,7 @@ begin  -- architecture sim
   web_fifo_1 : entity work.web_fifo
     generic map (
       RAM_WIDTH => 8,
-      RAM_DEPTH => 16)
+      RAM_DEPTH => 5)
     port map (
       clk        => clk,
       rst        => rst,
@@ -87,6 +87,41 @@ begin  -- architecture sim
     wait for clock_period;
     wr_en <= '0';
     wait for clock_period*2;
+
+    wr_data <= x"56";
+    wr_en <= '1';
+    wait for clock_period;
+    wr_en <= '0';
+    wait for clock_period*2;
+
+    wr_data <= x"78";
+    wr_en <= '1';
+    wait for clock_period;
+    wr_en <= '0';
+    wait for clock_period*2;
+
+    wr_data <= x"ab";
+    wr_en <= '1';
+    wait for clock_period;
+    wr_en <= '0';
+    wait for clock_period*2;
+
+
+    rd_en <= '1';
+    wait for clock_period;
+    rd_en <= '0';
+    wait for clock_period*2;
+
+    rd_en <= '1';
+    wait for clock_period;
+    rd_en <= '0';
+    wait for clock_period*2;
+
+    rd_en <= '1';
+    wait for clock_period;
+    rd_en <= '0';
+    wait for clock_period*2;
+
 
     rd_en <= '1';
     wait for clock_period;
