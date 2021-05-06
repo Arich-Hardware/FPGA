@@ -133,6 +133,8 @@ begin  -- architecture sim
       writeline(file_out, v_LINE);
       wait for clock_period;
 
+      
+
     end loop;
 
     wait;

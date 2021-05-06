@@ -1,5 +1,6 @@
 --
 -- FIFO from VHDLwhiz.com
+-- tweaked a bit to behave more like Xilinx FIFO wizard
 --
 
 library ieee;
@@ -80,6 +81,7 @@ begin
       else
 
         if wr_en = '1' and full_i = '0' then
+          ram(head) <= wr_data;
           incr(head);
         end if;
 
@@ -107,13 +109,14 @@ begin
   end process;
 
   -- Write to and read from the RAM
-  PROC_RAM : process(clk)
-  begin
-    if rising_edge(clk) then
-      ram(head) <= wr_data;
+  -- was a process, make asynchronous for now
+--  PROC_RAM : process(clk)
+--  begin
+--    if rising_edge(clk) then
+--      ram(head) <= wr_data;
       rd_data   <= ram(tail);
-    end if;
-  end process;
+--    end if;
+--  end process;
 
   -- Update the fill count
   PROC_COUNT : process(head, tail)

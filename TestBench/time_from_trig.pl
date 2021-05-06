@@ -1,9 +1,11 @@
 #!/usr/bin/perl
 # look at TDC input data, find hits which should  match a trigger
+# update 4/22 for new format:
+#
 
 use strict;
 
-my $debug = 0;
+my $debug = 2;
 
 my $win_before = 100;		# default time before trigger in ns
 my $win_after = 0;		# default time after trigger in ns
@@ -50,7 +52,7 @@ while( my $line = <FIN>) {
 		      nmatch => 0};
 	$last_time = $time;
     } elsif( $line =~ /^T/) {	# trigger
-	my ($time) = $line =~ /T\s([0-9.]*)$/;
+	my ($time) = $line =~ /T\s([0-9.]*)\s*$/;
 	print "Trigger at $time\n" if( $debug);
 	# store triggers
 	push @triggers, { time => $time, 
@@ -71,8 +73,10 @@ while( my $line = <FIN>) {
 # look for matches very inefficiently!
 
 foreach my $trig ( @triggers ) {
+    print "Trigger at $trig->{time} window $trig->{tstart} to $trig->{tend}\n" if( $debug>1);
     foreach my $hit ( @hits) {
 	my $delta_t = sprintf "%5.1f ns", $hit->{time} - $trig->{time};
+	print "Hit at $hit->{time} dt = $delta_t\n" if( $debug > 1);
 	if( $hit->{time} >= $trig->{tstart} && $hit->{time} <= $trig->{tend}) {
 	    print "Hit at $hit->{time} (L$hit->{line})",
 		" matches trigger at $trig->{time} (L$trig->{line})",

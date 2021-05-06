@@ -15,7 +15,7 @@ config:
 
 types:
 
-  # this which may change frequently
+  # things which may change frequently
   - NUM_TDC_CHANNELS: [qualifier: constant, type: integer, value: 4] # number of channels
   - TRIGGER_WINDOW: [qualifier: constant, type: integer, value: 25] # trigger window in clocks
   - TDC_TIMEOUT: [qualifier: constant, type: integer, value: 35]    # timeout window in clocks
@@ -27,9 +27,11 @@ types:
 
   # readout-related
   - TDC_TRIG_BITS: [qualifier: constant, type: integer, value: 8]   # trigger bits in buffer
-  - TDC_FIFO_DEPTH: [qualifier: constant, type: integer, value: 8]   # FIFO depth
+  - TDC_FIFO_DEPTH: [qualifier: constant, type: integer, value: 64]   # FIFO depth
 
-
+  # trigger TDC characteristics
+  - TRIG_TDC_BITS: [qualifier: constant, type: integer, value: 32] # coarse time width
+  - TRIG_EVN_BITS: [qualifier: constant, type: integer, value: 18] # Event number bits
 
   # calculate number of bits to hold various quantities
   # (this is possibly fragile code, dependent on specific yml2hdl version)
@@ -49,6 +51,8 @@ types:
       - te_time: [type: unsigned, length: TDC_COARSE_BITS]
       - te_phase: [type: logic, length: TDC_PHASE_BITS]
   
+# 
+
 # type for one TDC buffer inside the TDC logic
   - tdc_buffer:
       - hit: [type: tdc_hit_data]
@@ -66,3 +70,10 @@ types:
         
 # type for array of TDC outputs
   - tdc_output_array: [array: NUM_TDC_CHANNELS, type: tdc_output]
+
+# trigger TDC
+  - trigger_tdc_hit:
+      - trig_time: [type: unsigned, length: TRIG_TDC_BITS]
+      - trig_phase: [type: logic, length: TDC_PHASE_BITS]
+      - trig_event: [type: unsigned, length: TRIG_EVN_BITS]
+        
