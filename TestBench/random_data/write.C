@@ -4,7 +4,7 @@ void write(){
 
 	double dark_rate=6.25e-3, trigger_rate=30e-6;//per ns
 	double dark_width_up=95;//width=5+ran*up
-	double sim_time=1e6, trig_delay=90, Che_var=1;//ns, [T-100, T]=[T0-10, T0+90]
+	double sim_time=1e7, trig_delay=90, Che_var=1;//ns, [T-100, T]=[T0-10, T0+90]
 	double meanh=60./5e3;//average Cherenkov hit number per channel
 
 	//dark hit, end of dark hit, trigger
@@ -61,9 +61,10 @@ void write(){
 	//print out
 	ofstream out_f("testbench.dat");
 	int ati=0;
+	ntsim=ttime.size();
 	for(int i=0;i<dtime[0].size();i++){
 		if(dtime[0][i]<100)continue;
-		if(ati<ntsim)if(ttime[ati]<dtime[0][i]){
+		while(ttime[ati]<dtime[0][i]&&ati<ntsim){
 			out_f<<Form("T %0.1f",ttime[ati])<<endl;
 			ati++;
 		}

@@ -35,5 +35,5 @@ tdc_chan_tb.ghw: $(TDC_ROOT)/src/multi_sample.vhd \
 	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/tdc_chan.vhd
 	ghdl -a --ieee=synopsys tdc_chan_tb.vhd
 	ghdl -e --ieee=synopsys tdc_chan_tb
-	ghdl -r --ieee=synopsys tdc_chan_tb --stop-time=1ms --wave=tdc_chan_tb.ghw
+	ghdl -r --ieee=synopsys tdc_chan_tb --stop-time=10ms --wave=tdc_chan_tb.ghw
 
