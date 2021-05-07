@@ -79,10 +79,11 @@ begin
 	begin
 
 	 -- Put initialisation code here
-		rst   <= '1';
-		pulse <= '0';
+		rst     <= '1';
+		pulse   <= '0';
+		trigger <= '0';
 		wait for clock_period*4;
-		rst   <= '0';
+		rst     <= '0';
 		wait for clock_period*4;
 
 		while not endfile(file_handler) loop
