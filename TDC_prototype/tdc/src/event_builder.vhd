@@ -1,5 +1,4 @@
 -- event_builder.vhd - simple event builder
--- <><> Not finished
 --
 -- inputs:
 --   trig_in: trigger_tdc_hit        trigger time, phase, evn
@@ -32,7 +31,7 @@ entity event_builder is
     tdc_full    : in  std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);  -- FIFO flags
     rd_ena      : out std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);  -- FIFO read
     trig_num    : out unsigned(TDC_TRIG_BITS-1 downto 0);  -- to TDCs
-    data_out    : out event_builder_word;
+    data_out    : out std_logic_vector(31 downto 0);
     data_valid  : out std_logic
     );
 
@@ -45,7 +44,11 @@ architecture synth of event_builder is
   signal trig_empty_r : std_logic;      --delay register for empty
   signal tdc_empty_r  : std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
 
+  signal data_out_s : std_logic_vector(31 downto 0);
+
 begin  -- architecture synth
+
+  data_out <= data_out_s;
 
   process (clk, rst) is
   begin  -- process
@@ -59,23 +62,23 @@ begin  -- architecture synth
       trig_rd_ena <= '0';
 
       tdc_empty_r <= tdc_empty;         -- delayed empty
-      trig_empty_r = trig_empty;
+      trig_empty_r <= trig_empty;
 
       if current_chan = NUM_TDC_CHANNELS then
         -- pointing at the trigger
         if trig_empty = '0' and trig_empty_r = '0' then
-          data_out   <= vectorify(trig_in, data_out);
+          data_out_s   <= vectorify(trig_in, data_out_s);
           trig_rd_ena <= '1';
           data_valid <= '1';
         end if;
         current_chan <= 0;
       else
         -- pointing at a TDC channel
-        if tdc_empty(to_integer(current_chan)) = '0' and
-           tdc_empty_r( to_integer(current_chan)) = '0' then
-          data_out <= vectorify(tdc_data(to_integer(current_chan)),
-                                data_out);
-          rd_ena( to_integer(current_chan)) <= '1';
+        if tdc_empty(current_chan) = '0' and
+           tdc_empty_r(current_chan) = '0' then
+          data_out_s <= vectorify(tdc_data(current_chan),
+                                data_out_s);
+          rd_ena( current_chan) <= '1';
           data_valid <= '1';
         end if;
         current_chan <= current_chan + 1;

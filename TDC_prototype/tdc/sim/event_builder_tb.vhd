@@ -199,7 +199,7 @@ begin  -- architecture sim
     begin
       wait for clock_period/4*i;
       while not stop_the_clock loop
-        clk(i) <= '0', '1' after clock_period / 2;
+        clk(i) <= '1', '0' after clock_period / 2;
         wait for clock_period;
       end loop;
       wait;

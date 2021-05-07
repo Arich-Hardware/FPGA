@@ -12,8 +12,8 @@ GHDLA = $(GHDLRUN) -a $(GHDLOPT)
 GHDLE = $(GHDLRUN) -e $(GHDLOPT)
 GHDLR = $(GHDLRUN) -r $(GHDLOPT)
 
-#latest: fifo_tb.ghw
-latest: event_builder_tb.ghw
+# latest: fifo_tb.ghw
+latest: event_builder2_tb.ghw
 
 all: multi_tb.ghw tdc_chan_tb.ghw tdc_hit_tb.ghw tdc_hit_mux_tb.ghw tdc_with_fifo_tb.ghw \
 	tdc_multi_chan_tb.ghw
@@ -143,6 +143,30 @@ event_builder_tb.ghw: ../src/event_builder.vhd ../src/decode.vhd ../src/multi_sa
 	$(GHDLA) event_builder_tb.vhd
 	$(GHDLE) event_builder_tb
 	$(GHDLR) event_builder_tb --stop-time=250us --wave=event_builder_tb.ghw
+
+event_builder2_tb.ghw: ../src/event_builder.vhd ../src/decode.vhd ../src/multi_sample.vhd \
+	../src/tdc_types.vhd tdc_types_textio.vhd my_textio.vhd event_builder2_tb.vhd \
+	../src/trigger_tdc.vhd ../src/tdc_chan.vhd ../src/tdc_multi_chan.vhd \
+	../src/tdc_hit_mux.vhd ../src/tdc_hit.vhd ../src/tdc_with_fifo.vhd \
+	../src/web_fifo.vhd ../src/trigger_tdc_with_fifo.vhd
+	rm -f work-obj93.cf
+	$(GHDLA) ../src/tdc_types.vhd
+	$(GHDLA) my_textio.vhd
+	$(GHDLA) tdc_types_textio.vhd
+	$(GHDLA) ../src/decode.vhd
+	$(GHDLA) ../src/multi_sample.vhd
+	$(GHDLA) ../src/event_builder.vhd
+	$(GHDLA) ../src/tdc_hit.vhd
+	$(GHDLA) ../src/tdc_hit_mux.vhd
+	$(GHDLA) ../src/tdc_chan.vhd
+	$(GHDLA) ../src/web_fifo.vhd
+	$(GHDLA) ../src/tdc_with_fifo.vhd
+	$(GHDLA) ../src/tdc_multi_chan.vhd
+	$(GHDLA) ../src/trigger_tdc.vhd
+	$(GHDLA) ../src/trigger_tdc_with_fifo.vhd
+	$(GHDLA) event_builder2_tb.vhd
+	$(GHDLE) event_builder2_tb
+	$(GHDLR) event_builder2_tb --stop-time=250us --wave=event_builder2_tb.ghw
 
 fifo_tb.ghw: ../src/web_fifo.vhd fifo_tb.vhd
 	$(GHDLA) ../src/web_fifo.vhd

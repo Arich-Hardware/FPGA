@@ -76,4 +76,3 @@ types:
       - trig_time: [type: unsigned, length: TRIG_TDC_BITS]
       - trig_phase: [type: logic, length: TDC_PHASE_BITS]
       - trig_event: [type: unsigned, length: TRIG_EVN_BITS]
-        
