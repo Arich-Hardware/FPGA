@@ -1,6 +1,7 @@
 --
 -- FIFO from VHDLwhiz.com
--- tweaked a bit to behave more like Xilinx FIFO wizard
+-- Tweaked a bit
+-- pretty close to Xilinx FIFO _without_ FWFT
 --
 
 library ieee;
@@ -110,13 +111,15 @@ begin
 
   -- Write to and read from the RAM
   -- was a process, make asynchronous for now
---  PROC_RAM : process(clk)
---  begin
---    if rising_edge(clk) then
+  PROC_RAM : process(clk)
+  begin
+    if rising_edge(clk) then
+      if rd_en = '1' then
 --      ram(head) <= wr_data;
       rd_data   <= ram(tail);
---    end if;
---  end process;
+      end if;
+    end if;
+  end process;
 
   -- Update the fill count
   PROC_COUNT : process(head, tail)

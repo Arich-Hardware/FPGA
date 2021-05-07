@@ -1,5 +1,4 @@
 -- event_builder.vhd - simple event builder
--- <><> Not finished
 --
 -- inputs:
 --   trig_in: trigger_tdc_hit        trigger time, phase, evn
@@ -24,7 +23,7 @@ entity event_builder is
   port (
     clk         : in  std_logic;
     rst         : in  std_logic;
-    trig_in     : in  trigger_tdc_hit;
+    trig_hit_in : in  trigger_tdc_hit;
     trig_empty  : in  std_logic;
     trig_rd_ena : out std_logic;
     tdc_data    : in  tdc_output_array;
@@ -32,8 +31,12 @@ entity event_builder is
     tdc_full    : in  std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);  -- FIFO flags
     rd_ena      : out std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);  -- FIFO read
     trig_num    : out unsigned(TDC_TRIG_BITS-1 downto 0);  -- to TDCs
-    data_out    : out event_builder_word;
-    data_valid  : out std_logic
+--    data_out    : out std_logic_vector(DAQ_OUT_BITS-1 downto 0);
+--    data_valid  : out std_logic
+    trig_data_out : out trigger_tdc_hit;
+    trig_data_valid : out std_logic;
+    tdc_data_out : out tdc_output;
+    tdc_data_valid : out std_logic
     );
 
 end entity event_builder;
@@ -45,7 +48,11 @@ architecture synth of event_builder is
   signal trig_empty_r : std_logic;      --delay register for empty
   signal tdc_empty_r  : std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
 
+  signal data_out_s : std_logic_vector(DAQ_OUT_BITS-1 downto 0);
+
 begin  -- architecture synth
+
+--  data_out <= data_out_s;
 
   process (clk, rst) is
   begin  -- process
@@ -54,29 +61,42 @@ begin  -- architecture synth
     elsif rising_edge(clk) then         -- rising clock edge
 
       -- default values for strobes
-      data_valid  <= '0';
       rd_ena      <= (others => '0');
       trig_rd_ena <= '0';
 
-      tdc_empty_r <= tdc_empty;         -- delayed empty
-      trig_empty_r = trig_empty;
+--      data_valid  <= '0';
+      trig_data_valid <= '0';
+      tdc_data_valid <= '0';
+
+      tdc_empty_r  <= tdc_empty;        -- delayed empty
+      trig_empty_r <= trig_empty;
+
+      -- OK, what is needed here is a simple FSM
+      -- <><> broken still
+      
 
       if current_chan = NUM_TDC_CHANNELS then
         -- pointing at the trigger
         if trig_empty = '0' and trig_empty_r = '0' then
-          data_out   <= vectorify(trig_in, data_out);
+--          data_out_s  <= vectorify(trig_hit_in, data_out_s);
+--          data_valid  <= '1';
           trig_rd_ena <= '1';
-          data_valid <= '1';
+          -- need to delay this by 1 clock for rd_ena to register
+          trig_data_out <= trig_hit_in;
+          trig_data_valid <= '1';
         end if;
         current_chan <= 0;
       else
         -- pointing at a TDC channel
-        if tdc_empty(to_integer(current_chan)) = '0' and
-           tdc_empty_r( to_integer(current_chan)) = '0' then
-          data_out <= vectorify(tdc_data(to_integer(current_chan)),
-                                data_out);
-          rd_ena( to_integer(current_chan)) <= '1';
-          data_valid <= '1';
+        if tdc_empty(current_chan) = '0' and
+          tdc_empty_r(current_chan) = '0' then
+          rd_ena(current_chan) <= '1';
+          -- need to delay this by 1 clock for rd_ena to register
+          tdc_data_out <= tdc_data( current_chan);
+          tdc_data_valid <= '1';
+--          data_out_s <= vectorify(tdc_data(current_chan),
+--                                  data_out_s);
+--          data_valid           <= '1';
         end if;
         current_chan <= current_chan + 1;
       end if;
