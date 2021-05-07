@@ -166,7 +166,7 @@ event_builder2_tb.ghw: ../src/event_builder.vhd ../src/decode.vhd ../src/multi_s
 	$(GHDLA) ../src/trigger_tdc_with_fifo.vhd
 	$(GHDLA) event_builder2_tb.vhd
 	$(GHDLE) event_builder2_tb
-	$(GHDLR) event_builder2_tb --stop-time=250us --wave=event_builder2_tb.ghw
+	$(GHDLR) event_builder2_tb --stop-time=100us --wave=event_builder2_tb.ghw
 
 fifo_tb.ghw: ../src/web_fifo.vhd fifo_tb.vhd
 	$(GHDLA) ../src/web_fifo.vhd

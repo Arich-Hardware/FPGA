@@ -33,6 +33,10 @@ types:
   - TRIG_TDC_BITS: [qualifier: constant, type: integer, value: 32] # coarse time width
   - TRIG_EVN_BITS: [qualifier: constant, type: integer, value: 18] # Event number bits
 
+  # temporary DAQ width
+  - DAQ_OUT_BITS: [qualifier: constant, type: integer, value: 32]
+    
+
   # calculate number of bits to hold various quantities
   # (this is possibly fragile code, dependent on specific yml2hdl version)
 
