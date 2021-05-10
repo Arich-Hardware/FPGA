@@ -19,9 +19,9 @@ void read(){
 	ifstream fi("testbench.dat");
 	const int nchan=4;
 
-	vector<double> stime, etime, ttime, now, read_stime;
+	vector<double> stime, etime, ttime, now;
 	vector<int> chan;
-	double st, et, read_time=0;
+	double st, et;
 	int ichan;
 	char flag;
 
@@ -45,16 +45,14 @@ void read(){
 			tef.clear();
 			tchan.clear();
 			for(int i=stime.size()-1;i>=0;i--){
-				if(stime[i]>ttime.back()-window*unit-(shift_ts)*unit){
-//				if(stime[i]>ttime.back()-window*unit-(shift_ts)*unit&&stime[i]>read_time){
-					if(stime[i]>ttime.back()-(shift_ts)*unit)continue;
-					read_stime.push_back(stime[i]);
-					now.push_back(int(stime[i]/unit+0.5-circ_time)*unit+trig_shift);
+				if(stime[i]>ttime.back()-window*unit-shift_ts*unit-shift_tsf){
+					if(stime[i]>ttime.back()-shift_ts*unit-shift_tsf)continue;
 					ts.push_back(ctd+int(stime[i]/unit+0.5-circ_time)-int(ttime.back()/unit));
 					te.push_back(ctd+int(stime[i]/unit+0.5-circ_time)-int((stime[i]+etime[i])/unit+0.5-circ_time));
 					tsf.push_back(phase(stime[i]-circ_time));
 					tef.push_back(phase(stime[i]+etime[i]-circ_time));
 					tchan.push_back(chan[i]);
+					now.push_back(int(stime[i]/unit+0.5-circ_time)*unit+trig_shift);
 				}
 				else break;
 			}
@@ -62,8 +60,8 @@ void read(){
 				CarryBorrow(&ts[j], &tsf[j], shift_ts, shift_tsf);
 				CarryBorrow(&te[j], &tef[j], shift_te, shift_tef);
 				if(tchan[j]==0){
+					if(ts[j]>=35)continue;
 					of<<Form("%i %2i %1i %2i %1i  %-2i", int(now[j]), ts[j], tsf[j], te[j], tef[j], int(ttime.size()))<<endl;
-					read_time=read_stime[j];
 				}
 			}
 		}
