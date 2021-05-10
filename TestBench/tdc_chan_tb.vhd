@@ -104,6 +104,7 @@ begin
       elsif(flag = 'T') then
         trigger     <= '1';
         -- stretch trigger to 1.5 clocks so TDC won't miss them
+        --trigger     <= transport '0' after clock_period*1.0;
         trigger     <= transport '0' after clock_period*1.5;
         trig_number <= trig_number + 1;
       end if;
@@ -148,7 +149,7 @@ begin
     begin
       wait for clock_period/4*i;
       while not stop_the_clock loop
-        clk(i) <= '0', '1' after clock_period / 2;
+        clk(i) <= '1', '0' after clock_period / 2;
         wait for clock_period;
       end loop;
       wait;

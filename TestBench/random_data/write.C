@@ -1,6 +1,7 @@
 void write(){
 
 	const int nchan=4;
+	const double dead_pulse=50, dead_trig=10;
 
 	double dark_rate=6.25e-3, trigger_rate=30e-6;//per ns
 	double dark_width_up=95;//width=5+ran*up
@@ -28,6 +29,15 @@ void write(){
 			dtime[int(gRandom->Rndm()*4)].push_back((gRandom->Rndm()-0.5)*Che_var+ttime[i]-trig_delay);
 		}
 	}
+	
+	sort(ttime.begin(), ttime.end());
+	//remove too close triggers
+	for(int i=0;i<ttime.size();i++){
+		if(ttime[i]<ttime[i-1]+dead_trig){
+			ttime.erase(ttime.begin()+i);
+			i--;
+		}
+	}
 
 	//sort by time
 	for(int j=0;j<nchan;j++){
@@ -36,7 +46,8 @@ void write(){
 		etime[j].push_back(gRandom->Rndm()*dark_width_up+5);
 		ichan.push_back(j);
 		for(int i=1;i<dtime[j].size();i++){
-			if(dtime[j][i]<dtime[j][i-1]+50 || dtime[j][i]<dtime[j][i-1]+etime[j][i-1]){
+			if(dtime[j][i]<dtime[j][i-1]+etime[j][i-1]+dead_pulse){
+			//if(dtime[j][i]<dtime[j][i-1]+50 || dtime[j][i]<dtime[j][i-1]+etime[j][i-1]){
 				dtime[j].erase(dtime[j].begin()+i);
 				i--;
 			}
@@ -46,7 +57,6 @@ void write(){
 			}
 		}
 	}
-	sort(ttime.begin(), ttime.end());
 
 	//combine
 	for(int j=1;j<nchan;j++){
