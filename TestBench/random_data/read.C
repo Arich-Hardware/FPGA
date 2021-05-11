@@ -1,7 +1,7 @@
 const int ctd=35, window=25, unit=4;
 const int shift_ts=4, shift_tsf=2, shift_te=1, shift_tef=2, trig_shift=164;
 const double circ_time=1e-5;
-//Now trigger window is [T-(window+shift_ts]*unit, T-shift_ts*unit]=[T-120, T-20].
+//Now trigger window is [T-(window+shift_ts)*unit, T-shift_ts*unit]=[T-118, T-18].
 //Trigger ~ signal + 30 ns + artificial delay (~80 ns)
 
 int phase(double x){
@@ -59,10 +59,11 @@ void read(){
 			for(int j=ts.size()-1;j>=0;j--){
 				CarryBorrow(&ts[j], &tsf[j], shift_ts, shift_tsf);
 				CarryBorrow(&te[j], &tef[j], shift_te, shift_tef);
-				if(tchan[j]==0){
+//				if(tchan[j]==0){
 					if(ts[j]>=35)continue;
-					of<<Form("%i %2i %1i %2i %1i  %-2i", int(now[j]), ts[j], tsf[j], te[j], tef[j], int(ttime.size()))<<endl;
-				}
+					of<<Form("T %i %i %i %i", ttime.back)<<endl;
+					of<<Form("S %i %2i %1i %2i %1i  %-2i", int(now[j]), ts[j], tsf[j], te[j], tef[j], int(ttime.size()))<<endl;
+//				}
 			}
 		}
 	}

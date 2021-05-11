@@ -59,6 +59,6 @@ event_builder2_tb.ghw: $(TDC_ROOT)/src/event_builder.vhd $(TDC_ROOT)/src/decode.
 	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/trigger_tdc_with_fifo.vhd
 	ghdl -a --ieee=synopsys event_builder2_tb.vhd
 	ghdl -e --ieee=synopsys event_builder2_tb
-	ghdl -r --ieee=synopsys event_builder2_tb --stop-time=100us --wave=event_builder2_tb.ghw
+	ghdl -r --ieee=synopsys event_builder2_tb --stop-time=1ms --wave=event_builder2_tb.ghw
 
 
