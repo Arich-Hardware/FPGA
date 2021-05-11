@@ -166,7 +166,7 @@ event_builder2_tb.ghw: ../src/event_builder.vhd ../src/decode.vhd ../src/multi_s
 	$(GHDLA) ../src/trigger_tdc_with_fifo.vhd
 	$(GHDLA) event_builder2_tb.vhd
 	$(GHDLE) event_builder2_tb
-	$(GHDLR) event_builder2_tb --stop-time=100us --wave=event_builder2_tb.ghw
+	$(GHDLR) event_builder2_tb --stop-time=250us --wave=event_builder2_tb.ghw
 
 event_formatter_tb.ghw: ../src/event_builder.vhd ../src/decode.vhd ../src/multi_sample.vhd \
 	../src/tdc_types.vhd tdc_types_textio.vhd my_textio.vhd event_formatter_tb.vhd \

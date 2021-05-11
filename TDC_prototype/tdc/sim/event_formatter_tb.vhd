@@ -156,7 +156,7 @@ begin  -- architecture sim
 
   pulse_sim : process
 
-    file file_handler            : text open read_mode is "combined_sorted.dat";
+    file file_handler            : text open read_mode is "testbench.dat";
     variable row                 : line;
     variable bufr                : line;
     variable flag                : character;
