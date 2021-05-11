@@ -77,15 +77,14 @@ architecture sim of event_builder2_tb is
   signal rd_data : tdc_output_array;
 
   signal trig_out              : trigger_tdc_hit;
-  signal trig_valid            : std_logic;
   signal trig_empty, trig_full : std_logic;
   signal trig_rd_ena           : std_logic;
 
   signal trig_num : unsigned(TDC_TRIG_BITS-1 downto 0);
 
-  signal trig_data_out   : trigger_tdc_hit;
+  signal trig_data_out_s   : trigger_tdc_hit;
   signal trig_data_valid : std_logic;
-  signal tdc_data_out    : tdc_output;
+  signal tdc_data_out_s    : tdc_output;
   signal tdc_data_valid  : std_logic;
 
 begin  -- architecture sim
@@ -105,9 +104,9 @@ begin  -- architecture sim
 --      data_out    => data_out,
 --      data_valid  => data_valid);
 
-      trig_data_out   => trig_data_out,
+      trig_data_out   => trig_data_out_s,
       trig_data_valid => trig_data_valid,
-      tdc_data_out    => tdc_data_out,
+      tdc_data_out    => tdc_data_out_s,
       tdc_data_valid  => tdc_data_valid);
 
   tdc_multi_chan_1 : entity work.tdc_multi_chan
@@ -205,7 +204,7 @@ begin  -- architecture sim
         write(v_LINE, v_SPC);
         write(v_LINE, now / 1 ns);
         write(v_LINE, v_SPC);
-        write(v_LINE, trig_data_out);
+        write(v_LINE, trig_data_out_s);
         writeline(file_out, v_LINE);
       end if;
 
@@ -214,7 +213,7 @@ begin  -- architecture sim
         write(v_LINE, v_SPC);
         write(v_LINE, now / 1 ns);
         write(v_LINE, v_SPC);
-        write(v_LINE, tdc_data_out);
+        write(v_LINE, tdc_data_out_s);
         writeline(file_out, v_LINE);
       end if;
 
