@@ -51,6 +51,8 @@ begin  -- architecture arch
   tdcs : for i in NUM_TDC_CHANNELS-1 downto 0 generate
 
     tdc_with_fifo_2 : entity work.tdc_with_fifo
+      generic map (
+        CHANNEL => i)
       port map (
         clk        => clk,
         rst        => rst,

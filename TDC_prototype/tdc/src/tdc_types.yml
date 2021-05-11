@@ -71,6 +71,7 @@ types:
 
 # type for output of multi-hit TDC (size: 21)
   - tdc_output:
+      - channel_number: [type: unsigned, length: TDC_CHAN_NUM_BITS]
       - hit: [type: tdc_hit_data]
       - trigger_number: [type: unsigned, length: TDC_TRIG_BITS]
       - buffer_number: [type: unsigned, length: TDC_BUFFER_NUM_BITS]

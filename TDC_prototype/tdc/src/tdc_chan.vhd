@@ -11,6 +11,8 @@ use ieee.numeric_std.all;
 use work.tdc_types.all;
 
 entity tdc_chan is
+  generic (
+    CHANNEL : integer := 0);
   port (
     rst          : in  std_logic;       -- (not currently used)
     clk          : in  std_logic_vector(3 downto 0);        -- 4 phase clock
@@ -140,6 +142,7 @@ begin  -- architecture arch
           output.hit            <= buffers(i).hit;
           output.trigger_number <= trig_num;
           output.buffer_number  <= to_unsigned(i, TDC_BUFFER_NUM_BITS);
+          output.channel_number <= to_unsigned(CHANNEL, TDC_CHAN_NUM_BITS);
           buffer_valid          <= '1';
         end if;
       end loop;  -- i

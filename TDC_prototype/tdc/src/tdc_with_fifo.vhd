@@ -13,6 +13,9 @@ use work.tdc_types.all;
 
 entity tdc_with_fifo is
 
+  generic (
+    CHANNEL : integer := 0);
+
   port (
     clk        : in  std_logic_vector(3 downto 0);  -- external 4-phase clk
     rst        : in  std_logic;                     -- active high synch
@@ -31,6 +34,8 @@ end entity tdc_with_fifo;
 architecture arch of tdc_with_fifo is
 
   component tdc_chan is
+    generic (
+      CHANNEL : integer := 0);
     port (
       rst          : in  std_logic;
       clk          : in  std_logic_vector(3 downto 0);
@@ -80,6 +85,8 @@ begin  -- architecture arch
   s_trig_num <= trig_num;
 
   tdc_chan_1 : entity work.tdc_chan
+    generic map (
+      CHANNEL => CHANNEL)
     port map (
       rst          => rst,
       clk          => clk,
