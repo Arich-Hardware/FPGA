@@ -47,7 +47,7 @@ void read(){
 			for(int i=stime.size()-1;i>=0;i--){
 				if(stime[i]>ttime.back()-window*unit-shift_ts*unit-shift_tsf){
 					if(stime[i]>ttime.back()-shift_ts*unit-shift_tsf)continue;
-					ts.push_back(ctd+int(stime[i]/unit+0.5-circ_time)-int(ttime.back()/unit));
+					ts.push_back(ctd+int(stime[i]/unit+0.5-circ_time)-int(ttime.back()/unit-circ_time));
 					te.push_back(ctd+int(stime[i]/unit+0.5-circ_time)-int((stime[i]+etime[i])/unit+0.5-circ_time));
 					tsf.push_back(phase(stime[i]-circ_time));
 					tef.push_back(phase(stime[i]+etime[i]-circ_time));
