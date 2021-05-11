@@ -34,8 +34,16 @@ types:
   - TRIG_EVN_BITS: [qualifier: constant, type: integer, value: 18] # Event number bits
 
   # temporary DAQ width
-  - DAQ_OUT_BITS: [qualifier: constant, type: integer, value: 32]
-    
+  - DAQ_OUT_BITS: [qualifier: constant, type: integer, value: 64]
+
+  # upper bits used to flag DAQ words
+  - DAQ_TYPE_BITS: [qualifier: constant, type: integer, value: 4]
+
+  # DAQ word types in upper bits
+  - DAQ_TYPE_IDLE: [qualifier: constant, type: integer, value: 1]
+  - DAQ_TYPE_HEADER: [qualifier: constant, type: integer, value: 2]
+  - DAQ_TYPE_TRAILER: [qualifier: constant, type: integer, value: 3]
+  - DAQ_TYPE_DATA: [qualifier: constant, type: integer, value: 4]
 
   # calculate number of bits to hold various quantities
   # (this is possibly fragile code, dependent on specific yml2hdl version)
@@ -47,7 +55,6 @@ types:
   # buffer count bits
   - TDC_BUFFER_NUM_BITS: [qualifier: constant, type: integer, value: integer(ceil(log2(real(NUM_TDC_BUFFERS)))) ]
 
-
 # base type for one TDC hit (size: 16)
   - tdc_hit_data:
       - le_time: [type: unsigned, length: TDC_COARSE_BITS]
@@ -55,8 +62,6 @@ types:
       - te_time: [type: unsigned, length: TDC_COARSE_BITS]
       - te_phase: [type: logic, length: TDC_PHASE_BITS]
   
-# 
-
 # type for one TDC buffer inside the TDC logic
   - tdc_buffer:
       - hit: [type: tdc_hit_data]
@@ -80,3 +85,4 @@ types:
       - trig_time: [type: unsigned, length: TRIG_TDC_BITS]
       - trig_phase: [type: logic, length: TDC_PHASE_BITS]
       - trig_event: [type: unsigned, length: TRIG_EVN_BITS]
+
