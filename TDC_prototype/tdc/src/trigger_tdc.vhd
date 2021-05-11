@@ -21,11 +21,12 @@ use work.tdc_types_textio.all;
 entity trigger_tdc is
 
   port (
-    clk          : in  std_logic_vector(3 downto 0);  -- 4 phase clock
-    rst          : in  std_logic;                     -- active high asynch
-    trigger      : in  std_logic;                     -- rising edge
-    output       : out trigger_tdc_hit;               -- hit (time, phase, evn)
-    output_valid : out std_logic);
+    clk              : in  std_logic_vector(3 downto 0);  -- 4 phase clock
+    rst              : in  std_logic;   -- active high asynch
+    trigger          : in  std_logic;   -- rising edge
+    event_number_out : out unsigned(TRIG_EVN_BITS-1 downto 0);
+    output           : out trigger_tdc_hit;  -- hit (time, phase, evn)
+    output_valid     : out std_logic);
 
 end entity trigger_tdc;
 
@@ -51,14 +52,15 @@ architecture synth of trigger_tdc is
   signal phase                         : std_logic_vector(TDC_PHASE_BITS-1 downto 0);
 
   -- internal signals
-  signal hit          : trigger_tdc_hit;
-  signal current_time : unsigned(TRIG_TDC_BITS-1 downto 0);
-  signal event_number : unsigned(TRIG_EVN_BITS-1 downto 0);
+  signal hit            : trigger_tdc_hit;
+  signal current_time   : unsigned(TRIG_TDC_BITS-1 downto 0);
+  signal event_number   : unsigned(TRIG_EVN_BITS-1 downto 0);
   signal event_number_r : unsigned(TRIG_EVN_BITS-1 downto 0);
 
 begin  -- architecture synth
 
   output <= hit;
+  event_number_out <= event_number_r;
 
   multi_sample_1 : entity work.multi_sample
     port map (
@@ -93,6 +95,7 @@ begin  -- architecture synth
         hit.trig_phase <= phase;
         output_valid   <= '1';
         event_number   <= event_number + 1;
+        event_number_r <= event_number;
       end if;
 
     end if;

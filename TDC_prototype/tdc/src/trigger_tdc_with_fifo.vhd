@@ -12,12 +12,13 @@ use work.tdc_types.all;
 entity trigger_tdc_with_fifo is
 
   port (
-    clk         : in  std_logic_vector(3 downto 0);  -- 4 phase clock
-    rst         : in  std_logic;                     -- active high asynch
-    trigger     : in  std_logic;                     -- rising edge
-    empty, full : out std_logic;
-    output      : out trigger_tdc_hit;               -- hit (time, phase, evn)
-    rd_ena      : in  std_logic);
+    clk              : in  std_logic_vector(3 downto 0);  -- 4 phase clock
+    rst              : in  std_logic;   -- active high asynch
+    trigger          : in  std_logic;   -- rising edge
+    empty, full      : out std_logic;
+    event_number_out : out unsigned(TRIG_EVN_BITS-1 downto 0);
+    output           : out trigger_tdc_hit;  -- hit (time, phase, evn)
+    rd_ena           : in  std_logic);
 
 end entity trigger_tdc_with_fifo;
 
@@ -25,11 +26,12 @@ architecture synth of trigger_tdc_with_fifo is
 
   component trigger_tdc is
     port (
-      clk          : in  std_logic_vector(3 downto 0);
-      rst          : in  std_logic;
-      trigger      : in  std_logic;
-      output       : out trigger_tdc_hit;
-      output_valid : out std_logic);
+      clk              : in  std_logic_vector(3 downto 0);
+      rst              : in  std_logic;
+      trigger          : in  std_logic;
+      event_number_out : out unsigned(TRIG_EVN_BITS-1 downto 0);
+      output           : out trigger_tdc_hit;
+      output_valid     : out std_logic);
   end component trigger_tdc;
 
   component web_fifo is
@@ -51,26 +53,27 @@ architecture synth of trigger_tdc_with_fifo is
       fill_count : out integer range RAM_DEPTH - 1 downto 0);
   end component web_fifo;
 
-  signal trigger_data : trigger_tdc_hit;
-  signal trigger_data_v : std_logic_vector( len(trigger_data)-1 downto 0);
-  signal trigger_valid : std_logic;
+  signal trigger_data   : trigger_tdc_hit;
+  signal trigger_data_v : std_logic_vector(len(trigger_data)-1 downto 0);
+  signal trigger_valid  : std_logic;
 
-  signal output_data : trigger_tdc_hit;
-  signal output_data_v : std_logic_vector( len(output_data)-1 downto 0);
+  signal output_data   : trigger_tdc_hit;
+  signal output_data_v : std_logic_vector(len(output_data)-1 downto 0);
 
 begin  -- architecture synth
 
-  trigger_tdc_1: entity work.trigger_tdc
+  trigger_tdc_2 : entity work.trigger_tdc
     port map (
-      clk          => clk,
-      rst          => rst,
-      trigger      => trigger,
-      output       => trigger_data,
-      output_valid => trigger_valid);
+      clk              => clk,
+      rst              => rst,
+      trigger          => trigger,
+      event_number_out => event_number_out,
+      output           => trigger_data,
+      output_valid     => trigger_valid);
 
-  web_fifo_1: entity work.web_fifo
+  web_fifo_1 : entity work.web_fifo
     generic map (
-      RAM_WIDTH => len( output_data_v),
+      RAM_WIDTH => len(output_data_v),
       RAM_DEPTH => 16)
     port map (
       clk        => clk(0),
@@ -86,8 +89,8 @@ begin  -- architecture synth
       full_next  => open,
       fill_count => open);
 
-  trigger_data_v <= vectorify( trigger_data, trigger_data_v);
-  output_data <= structify( output_data_v, output_data);
+  trigger_data_v <= vectorify(trigger_data, trigger_data_v);
+  output_data    <= structify(output_data_v, output_data);
 
   output <= output_data;
 
