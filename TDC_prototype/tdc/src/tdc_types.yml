@@ -16,7 +16,7 @@ config:
 types:
 
   # things which may change frequently
-  - NUM_TDC_CHANNELS: [qualifier: constant, type: integer, value: 4] # number of channels
+  - NUM_TDC_CHANNELS: [qualifier: constant, type: integer, value: 32] # number of channels
   - TRIGGER_WINDOW: [qualifier: constant, type: integer, value: 25] # trigger window in clocks
   - TDC_TIMEOUT: [qualifier: constant, type: integer, value: 35]    # timeout window in clocks
 
