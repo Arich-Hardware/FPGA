@@ -89,39 +89,35 @@ architecture sim of event_formatter_tb is
   signal trig_empty, trig_full : std_logic;
   signal trig_rd_ena           : std_logic;
 
-  signal trig_num : unsigned(TDC_TRIG_BITS-1 downto 0);
+  signal trig_num_s : unsigned(TRIG_EVN_BITS-1 downto 0);
 
-  signal trig_data_out_s   : trigger_tdc_hit;
+  signal trig_data_out_s : trigger_tdc_hit;
   signal trig_data_valid : std_logic;
-  signal tdc_data_out_s    : tdc_output;
+  signal tdc_data_out_s  : tdc_output;
   signal tdc_data_valid  : std_logic;
 
-  signal daq_out_s : std_logic_vector(DAQ_OUT_BITS-1 downto 0);
+  signal daq_out_s   : std_logic_vector(DAQ_OUT_BITS-1 downto 0);
   signal daq_valid_s : std_logic;
 
 begin  -- architecture sim
 
   event_builder_1 : entity work.event_builder
     port map (
-      clk         => clk(0),
-      rst         => rst,
-      trig_hit_in => trig_out,
-      trig_empty  => trig_empty,
-      trig_rd_ena => trig_rd_ena,
-      tdc_data    => rd_data,
-      tdc_empty   => empty,
-      tdc_full    => full,
-      rd_ena      => rd_ena,
-      trig_num    => trig_num,
---      data_out    => data_out,
---      data_valid  => data_valid);
-
+      clk             => clk(0),
+      rst             => rst,
+      trig_hit_in     => trig_out,
+      trig_empty      => trig_empty,
+      trig_rd_ena     => trig_rd_ena,
+      tdc_data        => rd_data,
+      tdc_empty       => empty,
+      tdc_full        => full,
+      rd_ena          => rd_ena,
       trig_data_out   => trig_data_out_s,
       trig_data_valid => trig_data_valid,
       tdc_data_out    => tdc_data_out_s,
       tdc_data_valid  => tdc_data_valid);
 
-  event_formatter_1: entity work.event_formatter
+  event_formatter_1 : entity work.event_formatter
     port map (
       clk             => clk(0),
       rst             => rst,
@@ -137,7 +133,7 @@ begin  -- architecture sim
       clk      => clk,
       rst      => rst,
       trigger  => trigger,
-      trig_num => trig_out.trig_event(TDC_TRIG_BITS-1 downto 0),
+      trig_num => trig_num_s(TDC_TRIG_BITS-1 downto 0),
       pulse    => s_pulse,
       rd_data  => rd_data,
       empty    => empty,
@@ -150,6 +146,7 @@ begin  -- architecture sim
       rst     => rst,
       trigger => trigger,
       empty   => trig_empty,
+      event_number_out => trig_num_s,
       full    => trig_full,
       output  => trig_out,
       rd_ena  => trig_rd_ena);
@@ -209,12 +206,12 @@ begin  -- architecture sim
 
   begin
 
-    file_open(file_out, "tdc_output.txt", write_mode);
+    file_open(file_out, "tdc_daq.txt", write_mode);
 
-    write( v_LINE, string'("# Trig len "));
-    write( v_LINE, len( trig_data_out_s));
-    write( v_LINE, string'(" Data len "));
-    write( v_LINE, len( tdc_data_out_s));    
+    write(v_LINE, string'("# Trig len "));
+    write(v_LINE, len(trig_data_out_s));
+    write(v_LINE, string'(" Data len "));
+    write(v_LINE, len(tdc_data_out_s));
     writeline(file_out, v_LINE);
 
     wait for clock_period*8;
@@ -224,11 +221,11 @@ begin  -- architecture sim
       wait for clock_period;
 
       if daq_valid_s = '1' then
-        write( v_LINE, 'E');
-        write( v_LINE, v_SPC);
-        write( v_LINE, now);
-        write( v_LINE, v_SPC);
-        hwrite( v_LINE, daq_out_s);
+        write(v_LINE, 'E');
+        write(v_LINE, v_SPC);
+        write(v_LINE, now);
+        write(v_LINE, v_SPC);
+        hwrite(v_LINE, daq_out_s);
         writeline(file_out, v_LINE);
       end if;
 

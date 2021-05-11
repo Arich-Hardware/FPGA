@@ -28,7 +28,6 @@ architecture sim of event_builder2_tb is
       tdc_empty       : in  std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
       tdc_full        : in  std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
       rd_ena          : out std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
-      trig_num        : out unsigned(TDC_TRIG_BITS-1 downto 0);
       trig_data_out   : out trigger_tdc_hit;
       trig_data_valid : out std_logic;
       tdc_data_out    : out tdc_output;
@@ -61,9 +60,9 @@ architecture sim of event_builder2_tb is
       rd_ena      : in  std_logic);
   end component trigger_tdc_with_fifo;
 
-  signal clk     : std_logic_vector(3 downto 0);
-  signal rst     : std_logic;
-  signal trigger : std_logic;
+  signal clk       : std_logic_vector(3 downto 0);
+  signal rst       : std_logic;
+  signal trigger_s : std_logic;
 
   signal empty, full, rd_ena : std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
   signal s_pulse             : std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
@@ -80,30 +79,26 @@ architecture sim of event_builder2_tb is
   signal trig_empty, trig_full : std_logic;
   signal trig_rd_ena           : std_logic;
 
-  signal trig_num : unsigned(TDC_TRIG_BITS-1 downto 0);
+  signal trig_num_s : unsigned(TRIG_EVN_BITS-1 downto 0);
 
-  signal trig_data_out_s   : trigger_tdc_hit;
+  signal trig_data_out_s : trigger_tdc_hit;
   signal trig_data_valid : std_logic;
-  signal tdc_data_out_s    : tdc_output;
+  signal tdc_data_out_s  : tdc_output;
   signal tdc_data_valid  : std_logic;
 
 begin  -- architecture sim
 
   event_builder_1 : entity work.event_builder
     port map (
-      clk         => clk(0),
-      rst         => rst,
-      trig_hit_in => trig_out,
-      trig_empty  => trig_empty,
-      trig_rd_ena => trig_rd_ena,
-      tdc_data    => rd_data,
-      tdc_empty   => empty,
-      tdc_full    => full,
-      rd_ena      => rd_ena,
-      trig_num    => trig_num,
---      data_out    => data_out,
---      data_valid  => data_valid);
-
+      clk             => clk(0),
+      rst             => rst,
+      trig_hit_in     => trig_out,
+      trig_empty      => trig_empty,
+      trig_rd_ena     => trig_rd_ena,
+      tdc_data        => rd_data,
+      tdc_empty       => empty,
+      tdc_full        => full,
+      rd_ena          => rd_ena,
       trig_data_out   => trig_data_out_s,
       trig_data_valid => trig_data_valid,
       tdc_data_out    => tdc_data_out_s,
@@ -113,8 +108,8 @@ begin  -- architecture sim
     port map (
       clk      => clk,
       rst      => rst,
-      trigger  => trigger,
-      trig_num => trig_out.trig_event(TDC_TRIG_BITS-1 downto 0),
+      trigger  => trigger_s,
+      trig_num => trig_num_s( TDC_TRIG_BITS-1 downto 0),
       pulse    => s_pulse,
       rd_data  => rd_data,
       empty    => empty,
@@ -123,13 +118,14 @@ begin  -- architecture sim
 
   trigger_tdc_with_fifo_1 : entity work.trigger_tdc_with_fifo
     port map (
-      clk     => clk,
-      rst     => rst,
-      trigger => trigger,
-      empty   => trig_empty,
-      full    => trig_full,
-      output  => trig_out,
-      rd_ena  => trig_rd_ena);
+      clk              => clk,
+      rst              => rst,
+      trigger          => trigger_s,
+      event_number_out => trig_num_s,
+      empty            => trig_empty,
+      full             => trig_full,
+      output           => trig_out,
+      rd_ena           => trig_rd_ena);
 
   pulse_sim : process
 
@@ -143,12 +139,12 @@ begin  -- architecture sim
   begin
 
     -- Put initialisation code here
-    rst     <= '1';
-    s_pulse <= (others => '0');
+    rst       <= '1';
+    s_pulse   <= (others => '0');
 --    rd_ena  <= (others => '0');
-    trigger <= '0';
+    trigger_s <= '0';
     wait for clock_period*4;
-    rst     <= '0';
+    rst       <= '0';
     wait for clock_period*4;
 
     while not endfile(file_handler) loop
@@ -165,8 +161,8 @@ begin  -- architecture sim
         s_pulse(chanID) <= '1';
         s_pulse(chanID) <= transport '0' after (width * 1 ns);
       elsif(flag = 'T') then
-        trigger <= '1';
-        trigger <= transport '0' after 8 ns;
+        trigger_s <= '1';
+        trigger_s <= transport '0' after clock_period * 1.5;
       end if;
 
     end loop;

@@ -31,7 +31,6 @@ entity event_builder is
     tdc_empty   : in  std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);  -- FIFO flags
     tdc_full    : in  std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);  -- FIFO flags
     rd_ena      : out std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);  -- FIFO read
-    trig_num    : out unsigned(TDC_TRIG_BITS-1 downto 0);  -- to TDCs
 --    data_out    : out std_logic_vector(DAQ_OUT_BITS-1 downto 0);
 --    data_valid  : out std_logic
     trig_data_out : out trigger_tdc_hit;
