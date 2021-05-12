@@ -6,8 +6,7 @@ use work.tdc_types.all;
 entity top_tdc is
 
   port (
---    clk100  : in  std_logic;                      -- 100MHz external clock
-    clk : in std_logic_vector(3 downto 0);       -- magic external 4-phase clk
+    clk100  : in  std_logic;                      -- 100MHz external clock
     trigger : in  std_logic;                      -- readout trigger
     pulse   : in  std_logic;                      -- SiPM pulse
     hits    : out std_logic_vector(31 downto 0);  -- output hit
