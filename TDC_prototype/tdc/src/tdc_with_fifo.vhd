@@ -75,6 +75,8 @@ architecture arch of tdc_with_fifo is
   signal rd_data_rec : tdc_output;
   signal rd_data_vec : std_logic_vector(len(rd_data_rec)-1 downto 0);
 
+  constant tdc_width : integer := len(tdc);
+
 begin  -- architecture arch
 
   tdc_vec     <= vectorify(tdc, tdc_vec);
@@ -98,7 +100,7 @@ begin  -- architecture arch
 
   web_fifo_1 : entity work.web_fifo
     generic map (
-      RAM_WIDTH => len(tdc),
+      RAM_WIDTH => tdc_width,
       RAM_DEPTH => TDC_FIFO_DEPTH)
     port map (
       clk        => clk(0),

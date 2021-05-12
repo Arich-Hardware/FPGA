@@ -13,10 +13,7 @@
 library IEEE;
 use IEEE.Std_logic_1164.all;
 use IEEE.Numeric_Std.all;
-use std.textio.all;
 use work.tdc_types.all;
-use work.my_textio.all;
-use work.tdc_types_textio.all;
 
 entity trigger_tdc is
 
