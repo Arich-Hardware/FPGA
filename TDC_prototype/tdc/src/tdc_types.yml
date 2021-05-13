@@ -16,7 +16,7 @@ config:
 types:
 
   # things which may change frequently
-  - NUM_TDC_CHANNELS: [qualifier: constant, type: integer, value: 4] # number of channels
+  - NUM_TDC_CHANNELS: [qualifier: constant, type: integer, value: 32] # number of channels
   - TRIGGER_WINDOW: [qualifier: constant, type: integer, value: 25] # trigger window in clocks
   - TDC_TIMEOUT: [qualifier: constant, type: integer, value: 35]    # timeout window in clocks
 
@@ -70,13 +70,14 @@ types:
   - tdc_buffer_group: [array: NUM_TDC_BUFFERS, type: tdc_buffer]
 
 # type for output of multi-hit TDC (size: 21)
-  - tdc_output:							      # 30 total
-      - channel_number: [type: unsigned, length: TDC_CHAN_NUM_BITS]   #  2
-      - hit: [type: tdc_hit_data]	 	 		      # 16
-      - trigger_number: [type: unsigned, length: TDC_TRIG_BITS]	      #  8
-      - buffer_number: [type: unsigned, length: TDC_BUFFER_NUM_BITS]  #  2
-      - glitch: [type: logic] 					      #  1
-      - error: [type: logic]					      #  1
+# 30 bits total
+  - tdc_output:
+      - channel_number: [type: unsigned, length: TDC_CHAN_NUM_BITS]
+      - hit: [type: tdc_hit_data]
+      - trigger_number: [type: unsigned, length: TDC_TRIG_BITS]
+      - buffer_number: [type: unsigned, length: TDC_BUFFER_NUM_BITS]
+      - glitch: [type: logic]
+      - error: [type: logic]
         
 # type for array of TDC outputs
   - tdc_output_array: [array: NUM_TDC_CHANNELS, type: tdc_output]

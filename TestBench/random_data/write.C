@@ -1,6 +1,6 @@
 void write(){
 
-	const int nchan=4;
+	const int nchan=32;
 	const double dead_pulse=50, dead_trig=10;
 
 	double dark_rate=6.25e-3, trigger_rate=30e-6;//per ns

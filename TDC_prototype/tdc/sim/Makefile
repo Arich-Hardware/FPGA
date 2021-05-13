@@ -82,7 +82,7 @@ event_builder2_tb.ghw: analyze.ready
 
 event_builder2_tb.fast: analyze.ready
 	$(GHDLE) event_builder2_tb
-	$(GHDLR) event_builder2_tb --stop-time=1000us
+	$(GHDLR) event_builder2_tb --stop-time=1ms
 
 event_formatter_tb.ghw: analyze.ready
 	$(GHDLE) event_formatter_tb

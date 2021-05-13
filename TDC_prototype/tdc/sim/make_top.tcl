@@ -1,0 +1,20 @@
+create_project -force proj1 -part xc7a35t-cpg236-1
+read_vhdl ../../tdc/sim/top_tdc_logic_tb.vhd
+read_vhdl ../../tdc/sim/my_textio.vhd
+read_vhdl ../../tdc/sim/tdc_types_textio.vhd
+read_vhdl ../../tdc/src/top_tdc_logic.vhd
+read_vhdl ../../tdc/src/tdc_types.vhd
+read_vhdl ../../tdc/src/decode.vhd
+read_vhdl ../../tdc/src/multi_sample.vhd 
+read_vhdl ../../tdc/src/event_builder.vhd 
+read_vhdl ../../tdc/src/event_formatter.vhd
+read_vhdl ../../tdc/src/tdc_hit.vhd 
+read_vhdl ../../tdc/src/tdc_hit_mux.vhd 
+read_vhdl ../../tdc/src/tdc_chan.vhd
+read_vhdl ../../tdc/src/web_fifo.vhd 
+read_vhdl ../../tdc/src/tdc_with_fifo.vhd 
+read_vhdl ../../tdc/src/tdc_multi_chan.vhd
+read_vhdl ../../tdc/src/trigger_tdc.vhd 
+read_vhdl ../../tdc/src/trigger_tdc_with_fifo.vhd
+add_files ../../IP/fifo_512x36/fifo_512x36.xci
+add_files ../../IP/clock250x4/clock250x4.xci

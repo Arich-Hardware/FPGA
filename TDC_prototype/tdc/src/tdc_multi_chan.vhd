@@ -43,8 +43,8 @@ architecture arch of tdc_multi_chan is
       rd_ena     : in  std_logic);
   end component tdc_with_fifo;
 
-  type fill_count_a is array (NUM_TDC_CHANNELS-1 downto 0) of integer;
-  signal fill_count : fill_count_a;
+--  type fill_count_a is array (NUM_TDC_CHANNELS-1 downto 0) of integer;
+--  signal fill_count : fill_count_a;
 
 begin  -- architecture arch
 
@@ -61,7 +61,7 @@ begin  -- architecture arch
         trig_num   => trig_num,
         empty      => empty(i),
         full       => full(i),
-        fill_count => fill_count(i),
+--        fill_count => fill_count(i),
         rd_data    => rd_data(i),
         rd_ena     => rd_ena(i));
 
