@@ -1,18 +1,9 @@
 # TDC prototype
 
-This directory is intended to be the top level of a HoG project for
-the EMPHATIC TDC prototype FPGA design.  Currently the tree ```tdc``` contains
-the initial version of one multi-hit TDC with a ```Makefile``` in ```tdc/sim```
-for ```ghdl``` simulation.
+This is currently a branch (basys3-build) with a synthesizable TDC.  Inputs and outputs are rather bogus and just wired to switches and PMODs on a basys3 board.  However, a 96-channel TDC synthesizes and meets timing.  Notes:
 
-Output format (bits 20..0 used):
+* All logic past the FIFOs is at 100MHz.  NOT VERIFIED in simulation
+* Warnings not checked
+* 96 of 100 BRAMs used (but 7A50T has 50 more)
+* Pin assignments are competely arbitrary
 
-```
-  bits 20..15 - leading edge time
-  bits 14..13 - leading edge phase
-  bits 12..7  - trailing edge time
-  bits 6..5   - trailing edge phase
-  bits 4..2   - trigger number
-  bit 1       - glitch
-  bit 0       - error
-```
