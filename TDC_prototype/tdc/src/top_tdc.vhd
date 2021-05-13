@@ -13,9 +13,9 @@ use work.tdc_types.all;
 entity top_tdc is
 
   port (
-    clk100  : in  std_logic;            -- 100MHz board clock
-    sw : in std_logic_vector(7 downto 0); -- 8 inputs
-    LED : out std_logic_vector(1 downto 0); -- 2 outputs
+    clk100 : in  std_logic;                     -- 100MHz board clock
+    sw     : in  std_logic_vector(9 downto 0);  -- 10 inputs
+    LED    : out std_logic_vector(1 downto 0);  -- 2 outputs
 
 --    seg : out std_logic_vector(6 downto 0);  --total 12 outputs
 --    dp : out std_logic;
@@ -47,24 +47,46 @@ architecture arch of top_tdc is
   end component top_tdc_logic;
 
   signal trigger_s, reset_s : std_logic;
-  signal pulse_s : std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
-  signal daq_s : std_logic_vector(DAQ_OUT_BITS-1 downto 0);
-  signal valid_s : std_logic;
+  signal pulse_s            : std_logic_vector(NUM_TDC_CHANNELS-1 downto 0);
+  signal daq_s              : std_logic_vector(DAQ_OUT_BITS-1 downto 0);
+  signal valid_s            : std_logic;
+
+  signal group_sel : std_logic_vector(1 downto 0);
+
+  signal group_in : std_logic_vector(31 downto 0);
 
 begin
 
-  reset_s <= btnC;
+  reset_s   <= btnC;
   trigger_s <= btnU;
 
-  -- 32 inputs for now from PMOD and 8 switches
-  pulse_s <= (sw(7 downto 0) & JA & JB & JC);
+  group_sel <= sw(9) & sw(8);
+  group_in <= sw(7 downto 0) & JA & JB & JC;
+
+  -- 32 from PMOD and 8 switches
+  -- mux to 96 inputs using next switches
+  mux1 : process (sw, JA, JB, JC) is
+  begin  -- process mux1
+    case group_sel is
+      when "00" =>
+        pulse_s <= X"11111111" & group_in & X"22222222";
+
+      when "01" =>
+        pulse_s <= group_in & X"22222222" & X"11111111";
+
+      when "10" =>
+        pulse_s <= X"22222222" & X"11111111" & group_in;
+      when others => null;
+    end case;
+  end process mux1;
+
 
   -- outputs xor'd
-  LED(0) <= xor_reduce( daq_s);
+  LED(0) <= xor_reduce(daq_s);
   LED(1) <= valid_s;
-  
 
-  top_tdc_logic_1: entity work.top_tdc_logic
+
+  top_tdc_logic_1 : entity work.top_tdc_logic
     port map (
       clk100  => clk100,
       reset   => reset_s,

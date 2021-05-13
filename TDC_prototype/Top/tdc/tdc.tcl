@@ -18,7 +18,7 @@
 ############# modify these to match project ################
 set BIN_FILE 1
 ### FPGA
-set FPGA "xc7a35tcpg236-1"
+set FPGA "xc7a35tcpg236-2"
 set FAMILY <device_family>
 ### Vivado strategies and flows
 set SYNTH_STRATEGY "Vivado Synthesis Defaults"

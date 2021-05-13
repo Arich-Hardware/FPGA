@@ -13,6 +13,7 @@ entity trigger_tdc_with_fifo is
 
   port (
     clk              : in  std_logic_vector(3 downto 0);  -- 4 phase clock
+    sysclk           : in  std_logic;
     rst              : in  std_logic;   -- active high asynch
     trigger          : in  std_logic;   -- rising edge
     empty, full      : out std_logic;
