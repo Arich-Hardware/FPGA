@@ -34,19 +34,21 @@ architecture synth of trigger_tdc_with_fifo is
       output_valid     : out std_logic);
   end component trigger_tdc;
 
-  component fifo_512x36 is
+  component fifo_256x72_2clk
     port (
-      clk        : in  std_logic;
-      srst       : in  std_logic;
-      din        : in  std_logic_vector(35 downto 0);
-      wr_en      : in  std_logic;
-      rd_en      : in  std_logic;
-      dout       : out std_logic_vector(35 downto 0);
-      full       : out std_logic;
-      empty      : out std_logic;
-      valid      : out std_logic;
-      data_count : out std_logic_vector(8 downto 0));
-  end component fifo_512x36;
+      rst         : in  std_logic;
+      wr_clk      : in  std_logic;
+      rd_clk      : in  std_logic;
+      din         : in  std_logic_vector(71 downto 0);
+      wr_en       : in  std_logic;
+      rd_en       : in  std_logic;
+      dout        : out std_logic_vector(71 downto 0);
+      full        : out std_logic;
+      empty       : out std_logic;
+      wr_rst_busy : out std_logic;
+      rd_rst_busy : out std_logic
+      );
+  end component;
 
 --   component web_fifo is
 --     generic (
@@ -74,7 +76,7 @@ architecture synth of trigger_tdc_with_fifo is
   signal output_data   : trigger_tdc_hit;
   signal output_data_v : std_logic_vector(len(output_data)-1 downto 0);
 
-  signal fifo_in, fifo_out : std_logic_vector(35 downto 0);
+  signal fifo_in, fifo_out : std_logic_vector(71 downto 0);
 
 begin  -- architecture synth
 
@@ -87,18 +89,19 @@ begin  -- architecture synth
       output           => trigger_data,
       output_valid     => trigger_valid);
 
-  fifo_512x36_1 : fifo_512x36
+  fifo_512x36_1 : fifo_256x72_2clk
     port map (
-      clk        => clk(0),
-      srst       => rst,
-      din        => fifo_in,
-      wr_en      => trigger_valid,
-      rd_en      => rd_ena,
-      dout       => fifo_out,
-      full       => full,
-      empty      => empty,
-      valid      => open,
-      data_count => open);
+      wr_clk      => clk(0),
+      rd_clk      => sysclk,
+      rst         => rst,
+      din         => fifo_in,
+      wr_en       => trigger_valid,
+      rd_en       => rd_ena,
+      dout        => fifo_out,
+      full        => full,
+      empty       => empty,
+      wr_rst_busy => open,
+      rd_rst_busy => open);
 
 --  web_fifo_1 : entity work.web_fifo
 --    generic map (
@@ -118,8 +121,8 @@ begin  -- architecture synth
 --      full_next  => open,
 --      fill_count => open);
 
-  trigger_data_v <= vectorify( trigger_data, trigger_data_v);
-  fifo_in     <= trigger_data_v;
+  trigger_data_v <= vectorify(trigger_data, trigger_data_v);
+  fifo_in        <= (trigger_data_v, others => '0');
 
   output_data <= structify(fifo_out, output_data);
 

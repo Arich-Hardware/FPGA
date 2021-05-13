@@ -19,7 +19,6 @@ entity top_tdc_logic is
     daq     : out std_logic_vector(DAQ_OUT_BITS-1 downto 0);
     valid   : out std_logic);           -- output strobe
 
-
 end entity top_tdc_logic;
 
 
@@ -72,6 +71,7 @@ architecture arch of top_tdc_logic is
       NUM_CHAN : integer);
     port (
       clk      : in  std_logic_vector(3 downto 0);
+      sysclk   : in  std_logic;
       rst      : in  std_logic;
       trigger  : in  std_logic;
       trig_num : in  unsigned(TDC_TRIG_BITS-1 downto 0);
@@ -85,6 +85,7 @@ architecture arch of top_tdc_logic is
   component trigger_tdc_with_fifo is
     port (
       clk         : in  std_logic_vector(3 downto 0);
+      sysclk      : in  std_logic;
       rst         : in  std_logic;
       trigger     : in  std_logic;
       empty, full : out std_logic;
@@ -93,7 +94,7 @@ architecture arch of top_tdc_logic is
   end component trigger_tdc_with_fifo;
 
   signal clk       : std_logic_vector(3 downto 0);
-  signal clk_sys   : std_logic;
+  signal sysclk_s  : std_logic;
   signal rst       : std_logic;
   signal trigger_s : std_logic;
 
@@ -130,14 +131,14 @@ begin  -- architecture arch
       clk1      => clk(1),
       clk2      => clk(2),
       clk3      => clk(3),
-      clkout100 => clk_sys,
+      clkout100 => sysclk_s,
       reset     => rst,
       locked    => open,
       clk_in1   => clk100);
 
   event_builder_1 : entity work.event_builder
     port map (
-      clk             => clk(0),
+      clk             => sysclk_s,
       rst             => rst,
       trig_hit_in     => trig_out,
       trig_empty      => trig_empty,
@@ -153,7 +154,7 @@ begin  -- architecture arch
 
   event_formatter_1 : entity work.event_formatter
     port map (
-      clk             => clk(0),
+      clk             => sysclk_s,
       rst             => rst,
       trig_data_in    => trig_data_out_s,
       trig_data_valid => trig_data_valid,
@@ -165,6 +166,7 @@ begin  -- architecture arch
   tdc_multi_chan_1 : entity work.tdc_multi_chan
     port map (
       clk      => clk,
+      sysclk   => sysclk_s,
       rst      => rst,
       trigger  => trigger_s,
       trig_num => trig_num_s(TDC_TRIG_BITS-1 downto 0),
@@ -177,6 +179,7 @@ begin  -- architecture arch
   trigger_tdc_with_fifo_1 : entity work.trigger_tdc_with_fifo
     port map (
       clk              => clk,
+      sysclk           => sysclk_s,
       rst              => rst,
       trigger          => trigger_s,
       empty            => trig_empty,

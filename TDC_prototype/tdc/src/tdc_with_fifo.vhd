@@ -18,7 +18,7 @@ entity tdc_with_fifo is
 
   port (
     clk      : in  std_logic_vector(3 downto 0);  -- external 4-phase clk
---    clk100   : in  std_logic;
+    sysclk   : in  std_logic;                     -- system clock for output
     rst      : in  std_logic;                     -- active high synch
     trigger  : in  std_logic;                     -- readout trigger
     pulse    : in  std_logic;                     -- SiPM pulse
@@ -47,21 +47,21 @@ architecture arch of tdc_with_fifo is
       output       : out tdc_output);
   end component tdc_chan;
 
-  component fifo_512x36
+  component fifo_512x36_2clk
     port (
-      clk        : in  std_logic;
-      srst       : in  std_logic;
-      din        : in  std_logic_vector(35 downto 0);
-      wr_en      : in  std_logic;
-      rd_en      : in  std_logic;
-      dout       : out std_logic_vector(35 downto 0);
-      full       : out std_logic;
-      empty      : out std_logic;
-      valid      : out std_logic;
-      data_count : out std_logic_vector(8 downto 0)
+      rst         : in  std_logic;
+      wr_clk      : in  std_logic;
+      rd_clk      : in  std_logic;
+      din         : in  std_logic_vector(35 downto 0);
+      wr_en       : in  std_logic;
+      rd_en       : in  std_logic;
+      dout        : out std_logic_vector(35 downto 0);
+      full        : out std_logic;
+      empty       : out std_logic;
+      wr_rst_busy : out std_logic;
+      rd_rst_busy : out std_logic
       );
   end component;
-
 
 --  component web_fifo is
 --    generic (
@@ -122,18 +122,19 @@ begin  -- architecture arch
       buffer_valid => valid,
       output       => tdc);
 
-  fifo_512x36_1 : fifo_512x36
+  fifo_512x36_1 : fifo_512x36_2clk
     port map (
-      clk        => clk(0),
-      srst       => rst,
+      wr_clk     => clk(0),
+      rd_clk     => sysclk,
+      rst       => rst,
       din        => fifo_in,
       wr_en      => valid,
       rd_en      => rd_ena,
       dout       => fifo_out,
       full       => full,
       empty      => empty,
-      valid      => rd_valid,
-      data_count => fill_count);
+      wr_rst_busy => open,
+      rd_rst_busy => open);
 
 --  web_fifo_1 : entity work.web_fifo
 --    generic map (

@@ -18,8 +18,8 @@
 # - the last subdirectory has the same name as the IP and that
 # - only .xci files are committed.
 #
-IP/*/*
-!IP/*/*.xci
+TDC_prototype/IP/*/*
+!TDC_prototype/IP/*/*.xci
 
 ## OS
 .DS_Store
@@ -34,6 +34,10 @@ Thumbs.db
 **.vcd
 **.cf
 **.svh
+
+**.txt
+**.ready
+**.db
 
 **/tdc_types.vhd
 

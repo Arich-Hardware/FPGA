@@ -14,4 +14,5 @@ tdc/src/tdc_multi_chan.vhd
 tdc/src/trigger_tdc.vhd 
 tdc/src/trigger_tdc_with_fifo.vhd
 IP/clock250x4/clock250x4.xci
-IP/fifo_512x36/fifo_512x36.xci
+IP/fifo_512x36_2clk/fifo_512x36_2clk.xci
+IP/fifo_256x72_2clk/fifo_256x72_2clk.xci
