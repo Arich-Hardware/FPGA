@@ -87,7 +87,7 @@ begin  -- architecture synth
       output           => trigger_data,
       output_valid     => trigger_valid);
 
-  fifo_512x36_1 : entity work.fifo_512x36
+  fifo_512x36_1 : fifo_512x36
     port map (
       clk        => clk(0),
       srst       => rst,
@@ -118,7 +118,9 @@ begin  -- architecture synth
 --      full_next  => open,
 --      fill_count => open);
 
-  fifo_in     <= vectorify(trigger_data, fifo_in);
+  trigger_data_v <= vectorify( trigger_data, trigger_data_v);
+  fifo_in     <= trigger_data_v;
+
   output_data <= structify(fifo_out, output_data);
 
   output <= output_data;
