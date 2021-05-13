@@ -6,7 +6,10 @@
 ## Clock signal
 set_property PACKAGE_PIN W5 [get_ports clk]
 	set_property IOSTANDARD LVCMOS33 [get_ports clk100]
-	create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports clk100]
+	create_clock -add -name sys_clk_pin -period 100.00 -waveform {0 5} [get_ports clk100]
+
+##	create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports clk100]
+
 
 ## Switches
 #set_property PACKAGE_PIN V17 [get_ports {sw[0]}]
@@ -130,7 +133,7 @@ set_property PACKAGE_PIN L2 [get_ports pulse[0]]
 	set_property IOSTANDARD LVCMOS33 [get_ports pulse[0]]
 ##Sch name = JA3
 set_property PACKAGE_PIN J2 [get_ports pulse[1]]
-	set_property IOSTANDARD LVCMOS33 [get_ports {JA[2]}]
+	set_property IOSTANDARD LVCMOS33 [get_ports pulse[1]]
 ##Sch name = JA4
 set_property PACKAGE_PIN G2 [get_ports pulse[2]]
 	set_property IOSTANDARD LVCMOS33 [get_ports pulse[2]]
@@ -141,8 +144,8 @@ set_property PACKAGE_PIN H1 [get_ports pulse[3]]
 set_property PACKAGE_PIN K2 [get_ports xdaq]
 	set_property IOSTANDARD LVCMOS33 [get_ports xdaq]
 ##Sch name = JA9
-#set_property PACKAGE_PIN H2 [get_ports {JA[6]}]
-	#set_property IOSTANDARD LVCMOS33 [get_ports {JA[6]}]
+set_property PACKAGE_PIN H2 [get_ports valid]
+	set_property IOSTANDARD LVCMOS33 [get_ports valid]
 ##Sch name = JA10
 #set_property PACKAGE_PIN G3 [get_ports {JA[7]}]
 	#set_property IOSTANDARD LVCMOS33 [get_ports {JA[7]}]

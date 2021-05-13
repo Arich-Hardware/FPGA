@@ -121,7 +121,7 @@ begin  -- architecture arch
   xdaq <= xor_reduce( daq_out_s);
   valid <= daq_valid_s;
 
-  clock250x4_1 : entity work.clock250x4
+  clock250x4_1 : clock250x4
     port map (
       clk0    => clk(0),
       clk1    => clk(1),

@@ -75,7 +75,11 @@ architecture arch of tdc_with_fifo is
   signal rd_data_rec : tdc_output;
   signal rd_data_vec : std_logic_vector(len(rd_data_rec)-1 downto 0);
 
+
   constant tdc_width : integer := len(tdc);
+
+  -- calculate this by hand for FIFO implementation
+  assert tdc_width = 30;
 
 begin  -- architecture arch
 
