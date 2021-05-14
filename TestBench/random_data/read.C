@@ -1,70 +1,62 @@
-const int ctd=35, window=25, unit=4;
-const int shift_ts=4, shift_tsf=2, shift_te=1, shift_tef=2, trig_shift=164;
-const double circ_time=1e-5;
-//Now trigger window is [T-(window+shift_ts)*unit, T-shift_ts*unit]=[T-118, T-18].
-//Trigger ~ signal + 30 ns + artificial delay (~80 ns)
-
-int phase(double x){
-	return int((x-int(x/unit)*unit));
-}
-void CarryBorrow(int *x, int *y, int dx, int dy){
-	x[0]=x[0]+dx;
-	y[0]=y[0]+dy;
-	if(y[0]>=unit){
-		y[0]-=unit;
-	}
-}
-
 void read(){
-	ifstream fi("testbench.dat");
-	const int nchan=4;
 
-	vector<double> stime, etime, ttime, now;
-	vector<int> chan;
-	double st, et;
-	int ichan;
-	char flag;
+	ifstream f_soft("result.dat"), f_tdc("../tdc_output.txt");
 
-	vector<int> ts, te, tsf, tef, tchan;
-	ofstream of("result.dat");
-	while(fi.peek()!=EOF){
-		fi>>flag;
-		if(flag=='S'){
-			fi>>st>>ichan>>et;
-			stime.push_back(st);
-			chan.push_back(ichan);
-			etime.push_back(et);
-		}
-		else if(flag=='T'){
-			fi>>st;
-			ttime.push_back(st);
-			now.clear();
-			ts.clear();
-			te.clear();
-			tsf.clear();
-			tef.clear();
-			tchan.clear();
-			for(int i=stime.size()-1;i>=0;i--){
-				if(stime[i]>ttime.back()-window*unit-shift_ts*unit-shift_tsf){
-					if(stime[i]>ttime.back()-shift_ts*unit-shift_tsf)continue;
-					ts.push_back(ctd+int(stime[i]/unit+0.5-circ_time)-int(ttime.back()/unit-circ_time));
-					te.push_back(ctd+int(stime[i]/unit+0.5-circ_time)-int((stime[i]+etime[i])/unit+0.5-circ_time));
-					tsf.push_back(phase(stime[i]-circ_time));
-					tef.push_back(phase(stime[i]+etime[i]-circ_time));
-					tchan.push_back(chan[i]);
-					now.push_back(int(stime[i]/unit+0.5-circ_time)*unit+trig_shift);
-				}
-				else break;
+	int err_ct=0;
+
+	char tmpc, flag_soft, flag_tdc;
+	int tmp, ts, tsf, trign;
+	vector<int> ss, se, ssf, sef, chan;
+
+	int i_trign, i_s, i_sf, i_e, i_ef, i_chan, npulse;
+	f_soft>>flag_soft;
+	f_tdc>>flag_tdc;
+	while(f_soft.peek()!=EOF&&f_tdc.peek()!=EOF){
+		if(flag_soft=='T'){
+			f_soft>>tmp>>ts>>tsf>>trign;
+			f_tdc>>tmp>>i_s>>i_sf>>i_trign;
+			if(flag_tdc!='T'||trign!=i_trign||ts!=i_s||tsf!=i_sf){
+				cout<<"Mismatch! Trigger #"<<trign<<endl;
+				err_ct++;
 			}
-			for(int j=ts.size()-1;j>=0;j--){
-				CarryBorrow(&ts[j], &tsf[j], shift_ts, shift_tsf);
-				CarryBorrow(&te[j], &tef[j], shift_te, shift_tef);
-//				if(tchan[j]==0){
-					if(ts[j]>=35)continue;
-					of<<Form("T %i %i %i %i", ttime.back)<<endl;
-					of<<Form("S %i %2i %1i %2i %1i  %-2i", int(now[j]), ts[j], tsf[j], te[j], tef[j], int(ttime.size()))<<endl;
-//				}
+			ss.clear();
+			se.clear();
+			ssf.clear();
+			sef.clear();
+			chan.clear();
+			npulse=0;
+		
+			f_soft>>flag_soft;
+			while(flag_soft=='S'){
+				flag_soft=' ';
+				f_soft>>tmp>>i_chan>>i_s>>i_sf>>i_e>>i_ef>>tmp;
+				ss.push_back(i_s);
+				ssf.push_back(i_sf);
+				se.push_back(i_e);
+				sef.push_back(i_ef);
+				chan.push_back(i_chan);
+				f_soft>>flag_soft;
+			}
+			f_tdc>>flag_tdc;
+			while(flag_tdc=='S'){
+				flag_tdc=' ';
+				f_tdc>>tmp>>i_chan>>i_s>>i_sf>>i_e>>i_ef>>tmp>>tmp>>tmpc>>tmpc;
+				npulse++;
+				int i=0;
+				for(i=0;i<ss.size();i++){
+					if(i_chan==chan[i]&&i_s==ss[i]&&i_sf==ssf[i]&&i_e==se[i]&&i_ef==sef[i])break;
+				}
+				if(i==ss.size()){
+					cout<<"Mismatch! Trigger #"<<trign<<endl;
+					err_ct++;
+				}
+				f_tdc>>flag_tdc;
+			}
+			if(npulse!=ss.size()){
+				cout<<"Mismatch! Trigger #"<<trign<<endl;
+				err_ct++;
 			}
 		}
 	}
+	if(err_ct==0)cout<<"Great! All matched!"<<endl;
 }

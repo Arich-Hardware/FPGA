@@ -82,7 +82,7 @@ void format(){
 					of<<Form("S %i %i %i %i %i %i %-2i", s_now, chan_t[j], s_s, s_sf, s_e, s_ef, trign)<<endl;
 				}
 			}
+			trign++;
 		}
-		trign++;
 	}
 }

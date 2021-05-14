@@ -1,4 +1,5 @@
 void write(){
+	gRandom->Rndm();
 
 	const int nchan=4;
 	const double dead_pulse=50, dead_trig=200;
