@@ -1,3 +1,10 @@
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
+#include <vector>
+
+using namespace std;
+
 const int ctd=35, window=25, tolerance=10, unit=4;
 const int nchan=4;
 const int shift_ts=-2, shift_tsf=2, shift_ss=4, shift_ssf=2, shift_se=1, shift_sef=2;
@@ -25,8 +32,8 @@ void AddMinus(int *x, int *y, int dx, int dy){
 	}
 }
 
-void format(){
-	ifstream fi("testbench.dat");
+void format(string file0, string file1){
+	ifstream fi(file0);
 
 	vector<double> stime, etime, ttime, stime_t, etime_t;
 	vector<int> chan, chan_t;
@@ -36,7 +43,8 @@ void format(){
 
 	int t_now, t_s, t_sf;
 	int s_now, s_s, s_sf, s_e, s_ef, trign=0;
-	ofstream of("result.dat");
+//	ofstream of(file1);
+	FILE *of=fopen(file1.c_str(), "w");
 	while(fi.peek()!=EOF){
 		fi>>flag;
 		if(flag=='S'){
@@ -66,7 +74,7 @@ void format(){
 			t_s=int(ttime.back()/unit);
 			t_sf=phase(ttime.back());
 			CarryBorrow(&t_s, &t_sf, shift_ts, shift_tsf);
-			of<<Form("T %i %i %i %i", t_now, t_s, t_sf, trign)<<endl;
+			fprintf(of, "T %i %i %i %i\n", t_now, t_s, t_sf, trign);
 
 			if(stime_t.size()!=0){
 				for(int j=stime_t.size()-1;j>=0;j--){
@@ -79,7 +87,7 @@ void format(){
 					AddMinus(&s_e, &s_ef, shift_se, shift_sef);
 					if(s_s>=35)continue;
 					if(s_s<10)continue;
-					of<<Form("S %i %i %i %i %i %i %-2i", s_now, chan_t[j], s_s, s_sf, s_e, s_ef, trign)<<endl;
+					fprintf(of, "S %i %i %i %i %i %i %-2i\n", s_now, chan_t[j], s_s, s_sf, s_e, s_ef, trign);
 				}
 			}
 			trign++;

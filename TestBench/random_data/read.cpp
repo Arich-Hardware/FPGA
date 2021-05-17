@@ -1,6 +1,12 @@
-void read(){
+#include <iostream>
+#include <vector>
+#include <fstream>
 
-	ifstream f_soft("result.dat"), f_tdc("../tdc_output.txt");
+using namespace std;
+
+void read(string file1, string file2){
+
+	ifstream f_soft(file1), f_tdc(file2);
 
 	int err_ct=0;
 
@@ -16,7 +22,7 @@ void read(){
 			f_soft>>tmp>>ts>>tsf>>trign;
 			f_tdc>>tmp>>i_s>>i_sf>>i_trign;
 			if(flag_tdc!='T'||trign!=i_trign||ts!=i_s||tsf!=i_sf){
-				cout<<"Mismatch! Trigger #"<<trign<<endl;
+				cout<<"Error 00 Mismatch! Trigger #"<<trign<<endl;
 				err_ct++;
 			}
 			ss.clear();
@@ -47,13 +53,13 @@ void read(){
 					if(i_chan==chan[i]&&i_s==ss[i]&&i_sf==ssf[i]&&i_e==se[i]&&i_ef==sef[i])break;
 				}
 				if(i==ss.size()){
-					cout<<"Mismatch! Trigger #"<<trign<<endl;
+					cout<<"Error 11 Mismatch! Trigger #"<<trign<<endl;
 					err_ct++;
 				}
 				f_tdc>>flag_tdc;
 			}
 			if(npulse!=ss.size()){
-				cout<<"Mismatch! Trigger #"<<trign<<endl;
+				cout<<"Error 22 Mismatch! Trigger #"<<trign<<endl;
 				err_ct++;
 			}
 		}
