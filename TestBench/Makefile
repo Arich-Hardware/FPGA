@@ -1,65 +1,54 @@
-# python3.8
-# run a GHDL simulation
 #
+# process custom types and build and run a GHDL simulation
+#
+
 # run perl script with modules from the yml2tb submodule
 PERLRUN = perl -I../yml2tb
-
-all: event_builder2_tb.ghw 
 TDC_ROOT = ../TDC_prototype/tdc
 
-clean:
-	rm -f *~ *.cf *.vcd *.ghw
+# run GHDL
+GHDLRUN = ghdl
+GHDLOPT = --ieee=synopsys
+GHDLA = $(GHDLRUN) -a $(GHDLOPT)
+GHDLE = $(GHDLRUN) -e $(GHDLOPT)
+GHDLR = $(GHDLRUN) -r $(GHDLOPT)
 
-$(TDC_ROOT)/src/tdc_types.vhd: $(TDC_ROOT)/src/tdc_types.yml
-	python3 ../yml2hdl/yml2hdl.py $(TDC_ROOT)/src/tdc_types.yml
+VHDL =	$(TDC_ROOT)/src/tdc_types.vhd $(TDC_ROOT)/sim/my_textio.vhd tdc_types_textio.vhd $(TDC_ROOT)/src/decode.vhd \
+	$(TDC_ROOT)/src/multi_sample.vhd $(TDC_ROOT)/src/event_builder.vhd $(TDC_ROOT)/src/event_formatter.vhd \
+	$(TDC_ROOT)/src/tdc_hit.vhd $(TDC_ROOT)/src/tdc_hit_mux.vhd $(TDC_ROOT)/src/tdc_chan.vhd \
+	$(TDC_ROOT)/src/web_fifo.vhd $(TDC_ROOT)/src/tdc_with_fifo.vhd $(TDC_ROOT)/src/tdc_multi_chan.vhd \
+	$(TDC_ROOT)/src/trigger_tdc.vhd $(TDC_ROOT)/src/trigger_tdc_with_fifo.vhd $(TDC_ROOT)/sim/event_formatter_tb.vhd \
+	event_builder2_tb.vhd
+
+define analyze_VHDL
+  $(GHDLA) $(1);
+endef
+
+all: analyze.ready
+
+analyze.ready: $(VHDL)
+	rm -f work-obj93.cf
+	$(foreach vf,$(VHDL), $(call analyze_VHDL, $(vf)))
+	touch analyze.ready
+
+clean:
+	rm -f *~ *.cf *.vcd *.ghw *.db *.ready
 
 # create the custom types DB from the YAML file
-tdc_types.db: $(TDC_ROOT)/src/tdc_types.yml
+$(TDC_ROOT)/src/tdc_types.db: $(TDC_ROOT)/src/tdc_types.yml
 	$(PERLRUN) ../yml2tb/yamldump.pl $(TDC_ROOT)/src/tdc_types.yml tdc_types.db
 
 # create custom textio functions from the types DB
-tdc_types_textio.vhd: tdc_types.db
+tdc_types_textio.vhd: $(TDC_ROOT)/src/tdc_types.db
 	$(PERLRUN) ../yml2tb/yaml2textio.pl tdc_types.db tdc_types_textio.vhd tdc_types
 
-tdc_chan_tb.ghw: $(TDC_ROOT)/src/multi_sample.vhd \
-	$(TDC_ROOT)/src/decode.vhd tdc_chan_tb.vhd $(TDC_ROOT)/src/tdc_chan.vhd \
-	$(TDC_ROOT)/src/tdc_types.vhd $(TDC_ROOT)/src/tdc_hit_mux.vhd \
-	tdc_types_textio.vhd $(TDC_ROOT)/sim/my_textio.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/tdc_types.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/sim/my_textio.vhd
-	ghdl -a --ieee=synopsys tdc_types_textio.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/tdc_hit.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/tdc_hit_mux.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/decode.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/multi_sample.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/tdc_chan.vhd
-	ghdl -a --ieee=synopsys tdc_chan_tb.vhd
-	ghdl -e --ieee=synopsys tdc_chan_tb
-	ghdl -r --ieee=synopsys tdc_chan_tb --stop-time=10ms --wave=tdc_chan_tb.ghw
+# create the VHDL types from the YAML file using yml2hdl
+tdc_types.vhd: $(TDC_ROOT)/src/tdc_types.yml
+	python3 ../yml2hdl/yml2hdl.py $(TDC_ROOT)/src/tdc_types.yml
 
-event_builder2_tb.ghw: $(TDC_ROOT)/src/event_builder.vhd $(TDC_ROOT)/src/decode.vhd $(TDC_ROOT)/src/multi_sample.vhd \
-	$(TDC_ROOT)/src/tdc_types.vhd tdc_types_textio.vhd $(TDC_ROOT)/sim/my_textio.vhd event_builder2_tb.vhd \
-	$(TDC_ROOT)/src/trigger_tdc.vhd $(TDC_ROOT)/src/tdc_chan.vhd $(TDC_ROOT)/src/tdc_multi_chan.vhd \
-	$(TDC_ROOT)/src/tdc_hit_mux.vhd $(TDC_ROOT)/src/tdc_hit.vhd $(TDC_ROOT)/src/tdc_with_fifo.vhd \
-	$(TDC_ROOT)/src/web_fifo.vhd $(TDC_ROOT)/src/trigger_tdc_with_fifo.vhd
-	rm -f work-obj93.cf
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/tdc_types.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/sim/my_textio.vhd
-	ghdl -a --ieee=synopsys tdc_types_textio.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/decode.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/multi_sample.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/event_builder.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/tdc_hit.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/tdc_hit_mux.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/tdc_chan.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/web_fifo.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/tdc_with_fifo.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/tdc_multi_chan.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/trigger_tdc.vhd
-	ghdl -a --ieee=synopsys $(TDC_ROOT)/src/trigger_tdc_with_fifo.vhd
-	ghdl -a --ieee=synopsys event_builder2_tb.vhd
-	ghdl -e --ieee=synopsys event_builder2_tb
-	ghdl -r --ieee=synopsys event_builder2_tb --stop-time=10ms
-	#ghdl -r --ieee=synopsys event_builder2_tb --stop-time=100us --wave=event_builder2_tb.ghw
+event_builder2_tb.ghw: analyze.ready
+	$(GHDLR) event_builder2_tb --stop-time=250us --wave=event_builder2_tb.ghw
 
-
+event_builder2_tb.fast: analyze.ready
+	$(GHDLE) event_builder2_tb
+	$(GHDLR) event_builder2_tb --stop-time=10ms
