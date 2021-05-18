@@ -93,4 +93,6 @@ void format(string file0, string file1, int nchan){
 			trign++;
 		}
 	}
+	fi.close();
+	fclose(of);
 }
