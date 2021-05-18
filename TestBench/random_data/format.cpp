@@ -6,7 +6,6 @@
 using namespace std;
 
 const int ctd=35, window=25, tolerance=10, unit=4;
-const int nchan=4;
 const int shift_ts=-2, shift_tsf=2, shift_ss=4, shift_ssf=2, shift_se=1, shift_sef=2;
 const int trig_shift=40, pulse_shift=216;
 const double circ_time=1e-5;
@@ -32,7 +31,7 @@ void AddMinus(int *x, int *y, int dx, int dy){
 	}
 }
 
-void format(string file0, string file1){
+void format(string file0, string file1, int nchan){
 	ifstream fi(file0);
 
 	vector<double> stime, etime, ttime, stime_t, etime_t;
@@ -74,7 +73,7 @@ void format(string file0, string file1){
 			t_s=int(ttime.back()/unit);
 			t_sf=phase(ttime.back());
 			CarryBorrow(&t_s, &t_sf, shift_ts, shift_tsf);
-			fprintf(of, "T %i %i %i %i\n", t_now, t_s, t_sf, trign);
+			fprintf(of, "T %i %i %i %i \n", t_now, t_s, t_sf, trign);
 
 			if(stime_t.size()!=0){
 				for(int j=stime_t.size()-1;j>=0;j--){
@@ -87,7 +86,8 @@ void format(string file0, string file1){
 					AddMinus(&s_e, &s_ef, shift_se, shift_sef);
 					if(s_s>=35)continue;
 					if(s_s<10)continue;
-					fprintf(of, "S %i %i %i %i %i %i %-2i\n", s_now, chan_t[j], s_s, s_sf, s_e, s_ef, trign);
+					if(chan_t[j]>=nchan)continue;
+					fprintf(of, "S %i %i %i %i %i %i %-2i \n", s_now, chan_t[j], s_s, s_sf, s_e, s_ef, trign);
 				}
 			}
 			trign++;

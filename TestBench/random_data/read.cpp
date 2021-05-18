@@ -19,11 +19,15 @@ void read(string file1, string file2){
 	f_tdc>>flag_tdc;
 	while(f_soft.peek()!=EOF&&f_tdc.peek()!=EOF){
 		if(flag_soft=='T'){
+			trign=0;
 			f_soft>>tmp>>ts>>tsf>>trign;
+			cout<<tmp<<" "<<ts<<" "<<tsf<<" "<<trign<<endl;
 			f_tdc>>tmp>>i_s>>i_sf>>i_trign;
+			cout<<tmp<<" "<<i_s<<" "<<i_sf<<" "<<i_trign<<endl;
 			if(flag_tdc!='T'||trign!=i_trign||ts!=i_s||tsf!=i_sf){
 				cout<<"Error 00 Mismatch! Trigger #"<<trign<<endl;
 				err_ct++;
+				break;
 			}
 			ss.clear();
 			se.clear();
@@ -62,6 +66,7 @@ void read(string file1, string file2){
 				cout<<"Error 22 Mismatch! Trigger #"<<trign<<endl;
 				err_ct++;
 			}
+			else cout<<npulse<<" "<<ss.size()<<endl;
 		}
 	}
 	if(err_ct==0)cout<<"Great! All matched!"<<endl;
