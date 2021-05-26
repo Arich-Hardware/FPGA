@@ -2,7 +2,7 @@
 	path = yml2hdl
 	url = https://gitlab.com/tcpaiva/yml2hdl.git
 [submodule "TDC_prototype/Hog"]
-	path = TDC_prototype/Hog
+	path = Hog
 	url = https://gitlab.cern.ch/hog/Hog.git
 [submodule "yml2tb"]
 	path = yml2tb
