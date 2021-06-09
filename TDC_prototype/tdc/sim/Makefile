@@ -21,7 +21,7 @@ tdc_types_textio.vhd: tdc_types.db
 
 # create the VHDL types from the YAML file using yml2hdl
 ../src/tdc_types.vhd: ../src/tdc_types.yml
-	python ../../../yml2hdl/yml2hdl.py ../src/tdc_types.yml
+	python3 ../../../yml2hdl/yml2hdl.py ../src/tdc_types.yml
 
 tdc_multi_chan_tb.ghw: ../src/multi_sample.vhd ../src/decode.vhd tdc_with_fifo_tb.vhd ../src/tdc_chan.vhd \
 	../src/tdc_types.vhd ../src/web_fifo.vhd ../src/tdc_with_fifo.vhd ../src/tdc_hit_mux.vhd \
